@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "948912900722",
+    "project_id": "mango-haus",
+    "storage_bucket": "mango-haus.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:948912900722:android:aae840538a70483ed010eb",
+        "android_client_info": {
+          "package_name": "com.example.mango_haus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCKfaMUCEcYZOcZ27H79TJGS46SedWQnS4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
