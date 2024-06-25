@@ -15,6 +15,25 @@ class ExpensesFireBaseApi {
     return expense;
   }
 
+  Future<List<Expenses>> filteredExpenses(
+      DateTime? startDate, DateTime? endDate) async {
+    List<Expenses>? allDocs = [];
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection("expenses")
+        .orderBy('date', descending: false)
+        .get();
+    Iterable a = querySnapshot.docs.map((doc) => doc.data()).toList();
+    a.forEach((element) {
+      Expenses expenses = Expenses.fromMap(element);
+      if (startDate != null && endDate != null) if (expenses.date
+              .isAfter(startDate.subtract(Duration(days: 1))) &&
+          expenses.date.isBefore(endDate.add(Duration(days: 1)))) {
+        allDocs.add(expenses);
+      }
+    });
+    return allDocs;
+  }
+
   Future<List<Expenses>> getAllExpenses() async {
     List<Expenses> allDocs = [];
     await FirebaseFirestore.instance

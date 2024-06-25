@@ -2,7 +2,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:mango_haus/api/api.dart';
-import 'package:mango_haus/managers/available_beds.dart';
 import 'package:mango_haus/managers/managers.dart';
 import 'package:mango_haus/models/models.dart';
 import 'package:flutter/material.dart';
@@ -26,8 +25,6 @@ class _CheckInState extends State<CheckIn> {
   File? fileImage;
   final picker = ImagePicker();
   TextEditingController guestNameTEC = TextEditingController();
-  TextEditingController totalPriceTEC = TextEditingController(text: '0');
-  TextEditingController bedNumberTEC = TextEditingController(text: '1');
   List<RoomAvailability?> availableBeds = [];
   String roomName = 'Room';
   FocusNode node1 = FocusNode();
@@ -36,31 +33,71 @@ class _CheckInState extends State<CheckIn> {
   int nights = 1;
   double totalPrice = 0, commission = 0;
   String phoneNumber = 'phone number', bedNumber = 'Available Beds', guestPassportImgPath = '';
-  int numberOfGuests = 1;
+  int numberOfGuests = 1, numberOfBeds = 1;
   Guest? guest;
   ReservationModel? currentReservation;
-  List<RoomAvailability?> bedsAvailable = [];
   List<String> roomAvailableBeds = [];
+  List<bool> roomAvailableValues = [];
 
   @override
   Widget build(BuildContext context) {
-    return SelectionArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Check In'),
-        ),
-        body: Container(
+    return SingleChildScrollView(
+      child: Material(
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          decoration: BoxDecoration(
+            // image: DecorationImage(
+            //     image: AssetImage('images/paint-stain.png'), fit: BoxFit.cover),
+            gradient: LinearGradient(
+              colors: [Colors.deepOrange, Colors.orange, Colors.yellow],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: [0.2, 0.5, 0.9],
+            ),
+          ),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Center(
+                  child: Container(
+                    margin: EdgeInsets.only(top: 20, bottom: 20),
+                    padding: EdgeInsets.only(top: 30),
+                    child: Text(
+                      'Check In',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black,
+                            blurRadius: 2.0,
+                            offset: Offset(2.0, 2.0),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
                 Container(
                   margin: EdgeInsets.all(5),
                   decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15.0),
                       border: Border.all(color: Colors.orangeAccent, width: 1),
-                      boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
+                      boxShadow: [
+                        BoxShadow(
+                            blurRadius: 3.0,
+                            color: Colors.black,
+                            blurStyle: BlurStyle.inner,
+                            offset: Offset(-2, -2)),
+                        BoxShadow(
+                            blurRadius: 3.0,
+                            color: Colors.black,
+                            blurStyle: BlurStyle.inner,
+                            offset: Offset(2, 2))
+                      ]),
                   child: RawAutocomplete(
                     textEditingController: guestNameTEC,
                     focusNode: node1,
@@ -84,8 +121,7 @@ class _CheckInState extends State<CheckIn> {
                       if (guest != null) {
                         guestReservations =
                             await Provider.of<ReservationManager>(context, listen: false)
-                                .getReservationByName(guest!.name.trim().toLowerCase());
-                        print(guest!.name);
+                                .getReservationByName(guest!.name.trim().toLowerCase(), 'reserved');
                         setState(() {
                           guestPassportImgPath = guest!.passportImagePath;
                         });
@@ -100,8 +136,8 @@ class _CheckInState extends State<CheckIn> {
                         focusNode: focusNode,
                         decoration: InputDecoration(
                             labelText: 'guest name',
-                            prefixIcon:
-                                Icon(Icons.contact_page_outlined, color: Colors.orangeAccent),
+                            labelStyle: TextStyle(fontSize: 20, color: Colors.green),
+                            prefixIcon: Icon(Icons.contact_page_outlined, color: Colors.green),
                             border: InputBorder.none),
                       );
                     },
@@ -131,279 +167,314 @@ class _CheckInState extends State<CheckIn> {
                   ),
                 ),
                 Container(
-                  height: 200,
-                  child: ListView.builder(
-                      itemCount: guestReservations.length,
-                      itemBuilder: ((context, index) => Row(
-                            children: [
-                              InkWell(
-                                onTap: () async {
-                                  bedsAvailable.clear();
-                                  availableBeds =
-                                      await Provider.of<AvailableBeds>(context, listen: false)
-                                          .getRoomAvailableBeds(guestReservations[index]!.room);
-                                  print(availableBeds.length);
-                                  setState(() {
-                                    currentReservation = guestReservations[index];
-                                    roomAvailableBeds.clear();
-                                    roomAvailableBeds.add('Available Beds');
-                                    for (int i = 0; i < availableBeds.length; i++) {
-                                      roomAvailableBeds.add(availableBeds[i]!.bedNumber);
-                                    }
-                                    roomName = guestReservations[index]!.room;
-                                    checkInRange = DateFormat('EEEE, d MMM, yyyy')
-                                            .format(guestReservations[index]!.checkIn) +
-                                        '-' +
-                                        DateFormat('EEEE, d MMM, yyyy')
-                                            .format(guestReservations[index]!.checkout);
-                                    totalPrice = guestReservations[index]!.totalPrice;
-                                    nights = guestReservations[index]!.nights;
-                                    numberOfGuests = guestReservations[index]!.guestsCount;
-                                  });
-                                },
-                                child: Container(
-                                    padding: EdgeInsets.all(5),
-                                    margin: EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10.0),
-                                        color: Colors.white,
-                                        // border: Border.all(color: Colors.orangeAccent, width: 1),
-                                        boxShadow: [
-                                          BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)
-                                        ]),
-                                    child: Text(DateFormat('EEEE, d MMM, yyyy')
-                                            .format(guestReservations[index]!.checkIn) +
-                                        '-' +
-                                        DateFormat('EEEE, d MMM, yyyy')
-                                            .format(guestReservations[index]!.checkout))),
-                              ),
-                            ],
-                          ))),
-                ),
-                Row(
-                  children: [
-                    Container(
-                        padding: EdgeInsets.all(5),
-                        margin: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0), color: Colors.white,
-                            // border: Border.all(color: Colors.orangeAccent, width: 1),
-                            boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
-                        child: Row(
-                          children: [
-                            Text('total price : '),
-                            Text('${totalPrice}'),
-                            Text(' JOD'),
-                          ],
-                        )),
-                    Spacer(),
-                    Container(
-                      width: 150,
-                      padding: EdgeInsets.all(5),
-                      margin: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.0),
-                          color: Colors.white,
-                          border: Border.all(color: Colors.orangeAccent, width: 1),
-                          boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
-                      child: roomAvailableBeds.length < 1
-                          ? Text('available beds')
-                          : DropdownButton<String>(
-                              underline: const SizedBox(),
-                              value: bedNumber,
-                              items:
-                                  roomAvailableBeds.map<DropdownMenuItem<String>>((String? value) {
-                                return DropdownMenuItem<String>(
-                                  value: value!,
-                                  child: Text(
-                                    value,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                );
-                              }).toList(),
-                              onChanged: (String? value) {
-                                setState(() {
-                                  bedNumber = value!;
-                                });
-                              },
-                            ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Container(
-                      width: 70,
-                      height: 55,
-                      margin: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15.0),
-                          border: Border.all(color: Colors.orangeAccent, width: 1),
-                          boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
-                      child: Center(child: Text(roomName)),
-                    ),
-                    Spacer(),
-                    Container(
-                      padding: EdgeInsets.all(5),
-                      height: 55,
-                      margin: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15.0),
-                          border: Border.all(color: Colors.orangeAccent, width: 1),
-                          boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
-                      child: Center(
-                          child: Row(
-                        children: [
-                          Text(
-                            checkInRange,
-                            style: TextStyle(fontSize: 12),
+                  height: 100,
+                  margin: EdgeInsets.only(top: 10, bottom: 10),
+                  child: Column(
+                    children: [
+                      Center(
+                        child: Container(
+                          margin: EdgeInsets.only(
+                            top: 5,
                           ),
-                        ],
-                      )),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(5),
-                      width: 70,
-                      height: 55,
-                      margin: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15.0),
-                          border: Border.all(color: Colors.orangeAccent, width: 1),
-                          boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
-                      child: Center(
-                          child: Row(
-                        children: [
-                          nights == 1
-                              ? Text(
-                                  '1 night',
-                                  textAlign: TextAlign.end,
-                                )
-                              : Text(
-                                  '${nights} nights',
-                                  textAlign: TextAlign.end,
+                          child: Text(
+                            'Choose Reservation (${guestReservations.length})',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black,
+                                  blurRadius: 2.0,
+                                  offset: Offset(2.0, 2.0),
                                 ),
-                        ],
-                      )),
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(5),
-                      width: 55,
-                      height: 55,
-                      margin: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15.0),
-                          border: Border.all(color: Colors.orangeAccent, width: 1),
-                          boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
-                      child: Center(
-                          child: Row(
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.man,
-                                size: 24,
-                              ),
-                              Text(numberOfGuests.toString()),
-                            ],
+                              ],
+                            ),
                           ),
-                        ],
-                      )),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Spacer(),
-                    Container(
-                        margin: const EdgeInsets.only(top: 8, bottom: 4),
-                        width: MediaQuery.of(context).size.width - 40,
-                        height: 200,
-                        clipBehavior: Clip.antiAlias,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 8.0,
+                        ),
+                      ),
+                      guestReservations.length == 0
+                          ? Center(
+                              child: Text('No data'),
+                            )
+                          : Expanded(
+                              child: ListView.builder(
+                                padding: EdgeInsets.zero,
+                                itemCount: guestReservations.length,
+                                itemBuilder: ((context, index) => GestureDetector(
+                                      onTap: () async {
+                                        roomAvailableBeds.clear();
+                                        availableBeds.clear();
+                                        roomAvailableValues.clear();
+                                        availableBeds = await Provider.of<AvailableBeds>(context,
+                                                listen: false)
+                                            .getRoomAvailableBeds(guestReservations[index]!.room);
+                                        setState(() {
+                                          currentReservation = guestReservations[index];
+                                          if (currentReservation!.room.trim().toLowerCase() ==
+                                                  'alfonso' ||
+                                              currentReservation!.room.trim().toLowerCase() ==
+                                                  'mallika')
+                                            numberOfBeds = currentReservation!.guestsCount;
+                                          for (int i = 0; i < availableBeds.length; i++) {
+                                            roomAvailableBeds.add(availableBeds[i]!.bedNumber);
+                                            roomAvailableValues.add(false);
+                                            roomName = guestReservations[index]!.room;
+                                            checkInRange = DateFormat('EEEE, d MMM, yyyy')
+                                                    .format(guestReservations[index]!.checkIn) +
+                                                '-' +
+                                                DateFormat('EEEE, d MMM, yyyy')
+                                                    .format(guestReservations[index]!.checkout);
+                                            totalPrice = guestReservations[index]!.totalPrice;
+                                            nights = guestReservations[index]!.nights;
+                                            numberOfGuests = guestReservations[index]!.guestsCount;
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                          padding: EdgeInsets.only(left: 15, top: 8, bottom: 8),
+                                          margin: EdgeInsets.all(5),
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(10.0),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                    blurRadius: 3.0,
+                                                    color: Colors.black,
+                                                    offset: Offset(2, 2),
+                                                    blurStyle: BlurStyle.outer),
+                                                BoxShadow(
+                                                    blurRadius: 3.0,
+                                                    color: Colors.white,
+                                                    offset: Offset(2, 2),
+                                                    blurStyle: BlurStyle.inner)
+                                              ]),
+                                          child: Text(DateFormat('EEEE, d MMM, yyyy')
+                                                  .format(guestReservations[index]!.checkIn) +
+                                              '-' +
+                                              DateFormat('EEEE, d MMM, yyyy')
+                                                  .format(guestReservations[index]!.checkout))),
+                                    )),
                               ),
-                            ],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(width: 1, color: Colors.orange)),
-                        child: fileImage == null && guestPassportImgPath.isEmpty
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 200,
-                                    child: Row(
-                                      children: [
-                                        Spacer(),
-                                        IconButton(
-                                          onPressed: pickImageCamera,
-                                          icon: Icon(
-                                            Icons.camera_alt_sharp,
-                                            size: 50,
-                                          ),
-                                        ),
-                                        Spacer(),
-                                        IconButton(
-                                            onPressed: pickImageGallery,
-                                            icon: Icon(
-                                              Icons.drive_folder_upload,
-                                              size: 50,
-                                            )),
-                                        Spacer()
-                                      ],
-                                    ),
+                            ),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 200,
+                  child: Column(
+                    children: [
+                      Center(
+                        child: Container(
+                          margin: EdgeInsets.only(
+                            top: 5,
+                          ),
+                          child: Text(
+                            'Guest Details',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black,
+                                  blurRadius: 2.0,
+                                  offset: Offset(2.0, 2.0),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(left: 15, top: 8, bottom: 8),
+                        margin: EdgeInsets.all(5),
+                        decoration:
+                            BoxDecoration(borderRadius: BorderRadius.circular(10.0), boxShadow: [
+                          BoxShadow(
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                              offset: Offset(2, 2),
+                              blurStyle: BlurStyle.outer),
+                          BoxShadow(
+                              blurRadius: 3.0,
+                              color: Colors.white,
+                              offset: Offset(2, 2),
+                              blurStyle: BlurStyle.inner)
+                        ]),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text('total price : '),
+                                Text('${totalPrice}'),
+                                Text(' JOD'),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              'Reservation Date : $checkInRange',
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            nights == 1
+                                ? Text(
+                                    'Staying Duration : 1 night',
                                   )
+                                : Text(
+                                    'Staying Duration : ${nights} nights',
+                                  ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text('Number Of Guests : ${numberOfGuests.toString()}')
+                          ],
+                        ),
+                      ),
+                      Container(
+                          padding: EdgeInsets.all(5),
+                          margin: EdgeInsets.all(5),
+                          decoration:
+                              BoxDecoration(borderRadius: BorderRadius.circular(10.0), boxShadow: [
+                            BoxShadow(
+                                blurRadius: 3.0,
+                                color: Colors.black,
+                                offset: Offset(2, 2),
+                                blurStyle: BlurStyle.outer),
+                            BoxShadow(
+                                blurRadius: 3.0,
+                                color: Colors.white,
+                                offset: Offset(2, 2),
+                                blurStyle: BlurStyle.inner)
+                          ]),
+                          child: roomAvailableBeds.length < 1
+                              ? Text('available beds')
+                              : Column(
+                                  children: [
+                                    Center(
+                                      child: numberOfBeds > 1
+                                          ? Text(
+                                              'Choose $numberOfBeds Beds',
+                                              style: TextStyle(fontWeight: FontWeight.bold),
+                                            )
+                                          : Text('choose bed'),
+                                    ),
+                                    Container(
+                                      width: 300,
+                                      height: 40,
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: roomAvailableBeds.length,
+                                        itemBuilder: (context, index) {
+                                          return Row(
+                                            children: [
+                                              Checkbox(
+                                                value: roomAvailableValues[index],
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    roomAvailableValues[index] = value!;
+                                                  });
+                                                },
+                                              ),
+                                              Text('${roomAvailableBeds[index]}')
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                )),
+                    ],
+                  ),
+                ),
+                Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width - 40,
+                    height: 200,
+                    clipBehavior: Clip.antiAlias,
+                    alignment: Alignment.center,
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(10.0), boxShadow: [
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          offset: Offset(2, 2),
+                          blurStyle: BlurStyle.outer),
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.white.withOpacity(0.4),
+                          offset: Offset(2, 2),
+                          blurStyle: BlurStyle.inner)
+                    ]),
+                    child: fileImage == null && guestPassportImgPath.isEmpty
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 200,
+                                child: Row(
+                                  children: [
+                                    Spacer(),
+                                    IconButton(
+                                      onPressed: pickImageCamera,
+                                      icon: Icon(
+                                        Icons.camera_alt_sharp,
+                                        size: 50,
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    IconButton(
+                                        onPressed: pickImageGallery,
+                                        icon: Icon(
+                                          Icons.drive_folder_upload,
+                                          size: 50,
+                                        )),
+                                    Spacer()
+                                  ],
+                                ),
+                              )
+                            ],
+                          )
+                        : guestPassportImgPath.isNotEmpty && fileImage == null
+                            ? Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        fileImage = null;
+                                        guest?.passportImagePath = '';
+                                      });
+                                    },
+                                    icon: const Icon(Icons.highlight_remove_sharp),
+                                    iconSize: 30,
+                                  ),
+                                  Image.network('${guest?.passportImagePath}'),
                                 ],
                               )
-                            : guestPassportImgPath.isNotEmpty && fileImage == null
-                                ? Row(
-                                    children: [
-                                      IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            fileImage = null;
-                                            guest?.passportImagePath = '';
-                                          });
-                                        },
-                                        icon: const Icon(Icons.highlight_remove_sharp),
-                                        iconSize: 30,
-                                      ),
-                                      Image.network(guest!.passportImagePath),
-                                    ],
-                                  )
-                                : Row(
-                                    children: [
-                                      IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            fileImage = null;
-                                            guest?.passportImagePath = '';
-                                          });
-                                        },
-                                        icon: const Icon(Icons.highlight_remove_sharp),
-                                        iconSize: 30,
-                                      ),
-                                      Image.file(
-                                        fileImage!,
-                                        fit: BoxFit.fill,
-                                      ),
-                                    ],
-                                  )),
-                    Spacer()
-                  ],
+                            : Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        fileImage = null;
+                                        guest?.passportImagePath = '';
+                                      });
+                                    },
+                                    icon: const Icon(Icons.highlight_remove_sharp),
+                                    iconSize: 30,
+                                  ),
+                                  Image.file(
+                                    fileImage!,
+                                    fit: BoxFit.fill,
+                                  ),
+                                ],
+                              ),
+                  ),
                 ),
                 Row(
                   children: [
@@ -426,19 +497,29 @@ class _CheckInState extends State<CheckIn> {
                               FirebaseStorage storage = FirebaseStorage.instance;
                               Reference ref =
                                   storage.ref().child('passports').child('${guest!.name}.jpg');
-                              UploadTask uploadTask = ref.putFile(fileImage!);
-                              TaskSnapshot snapshot = await uploadTask;
-                              String downloadUrl = await snapshot.ref.getDownloadURL();
-                              guest?.passportImagePath = downloadUrl;
+                              if (fileImage != null) {
+                                UploadTask uploadTask = ref.putFile(fileImage!);
+                                TaskSnapshot snapshot = await uploadTask;
+                                String downloadUrl = await snapshot.ref.getDownloadURL();
+                                guest?.passportImagePath = downloadUrl;
+                              }
+                              List<String> guestReservedBeds = [];
+                              for (int i = 0; i < roomAvailableValues.length; i++) {
+                                if (roomAvailableValues[i] && availableBeds[i] != null) {
+                                  roomsAndBeds.updateAvailability(
+                                      currentReservation!.room, availableBeds[i]!.bedNumber, false);
+                                  guestReservedBeds.add(availableBeds[i]!.bedNumber);
+                                }
+                              }
                               Provider.of<GuestManager>(context, listen: false).updateGuest(guest!);
                               currentReservation!.status = 'checkedIn';
                               currentReservation!.physicalCheckIn = DateTime.now();
-                              currentReservation!.reservedBed = bedNumber;
+                              currentReservation!.reservedBeds = guestReservedBeds;
                               await Provider.of<ReservationManager>(context, listen: false)
                                   .updateReservation(currentReservation);
-                              roomsAndBeds.updateAvailability(
-                                  currentReservation!.room, bedNumber, false);
                               Payment payment = Payment(
+                                  checkIn: currentReservation!.checkIn,
+                                  checkOut: currentReservation!.checkout,
                                   receivedBy: '',
                                   guestName: guest!.name,
                                   paymentAmounts: [],
@@ -446,26 +527,49 @@ class _CheckInState extends State<CheckIn> {
                                   remaining: currentReservation!.totalPrice);
                               await Provider.of<PaymentManager>(context, listen: false)
                                   .addGuestPayment(payment);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  new SnackBar(content: new Text('${guest?.name} checked in')));
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  new SnackBar(content: new Text('guest name can\'t be empty')));
-                            }
-                            setState(() {
-                              guestNameTEC.text = '';
-                              totalPriceTEC.text = 'total price';
-                              bedNumber = 'Available Beds';
-                              bedNumberTEC.text = '1';
-                              roomName = 'Room';
-                              checkInRange = 'check in Date - check out date';
-                              nights = 0;
-                              numberOfGuests = 0;
-                              fileImage = null;
-                              guest = null;
-                              availableBeds.clear();
-                              bedsAvailable.clear();
-                            });
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('Check In Complete'),
+                                  content: Text('${guest?.name} checked in'),
+                                  actions: [
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            guestReservations.clear();
+                                            guestNameTEC.text = '';
+                                            totalPrice = 0.0;
+                                            bedNumber = 'Available Beds';
+                                            roomName = 'Room';
+                                            checkInRange = 'check in Date - check out date';
+                                            nights = 0;
+                                            numberOfGuests = 0;
+                                            fileImage = null;
+                                            guest = null;
+                                            availableBeds.clear();
+                                            roomAvailableBeds.clear();
+                                          });
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text('Continue'))
+                                  ],
+                                ),
+                              );
+                            } else
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                        title: Text('Wrong Selection'),
+                                        content: Text(
+                                            'Check in date should be greater than today\'s date'),
+                                        actions: [
+                                          ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text('Continue'))
+                                        ],
+                                      ));
                           },
                           child: Text('Check In')),
                     ),

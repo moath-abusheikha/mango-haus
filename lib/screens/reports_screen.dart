@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mango_haus/components/components.dart';
+import 'package:mango_haus/subscreens/subscreens.dart';
 import 'package:provider/provider.dart';
 import '../managers/managers.dart';
-import '../models/models.dart';
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -12,194 +11,318 @@ class ReportsScreen extends StatefulWidget {
 }
 
 class _ReportsScreenState extends State<ReportsScreen> {
-  Widget? componentWidget;
-  List<CheckInOut>? allCheckIns;
-  List<Guest>? guests;
-  List<ReservationModel>? bookings;
-  List<Payment>? payments;
-  List<Expenses>? expenses;
-  List<Services>? services;
-  String report = 'Report Name';
-
-  @override
-  void initState() {
-    getData();
-    super.initState();
-  }
-
-  getData() async {
-    allCheckIns = await Provider.of<CheckInManager>(context, listen: false).getAllCheckIns();
-    guests = await Provider.of<GuestManager>(context, listen: false).getAllGuests();
-    bookings = await Provider.of<ReservationManager>(context, listen: false).getAllReservations();
-    payments = await Provider.of<PaymentManager>(context, listen: false).getAllPayments();
-    expenses = await Provider.of<ExpensesManager>(context, listen: false).getExpenses();
-    services = await Provider.of<ServicesManager>(context, listen: false).getAllServices();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Material(
       child: Container(
         height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
-          image: DecorationImage(image: AssetImage('images/mango.jpg'), fit: BoxFit.fitHeight),
+          // image: DecorationImage(
+          //     image: AssetImage('images/paint-stain.png'), fit: BoxFit.cover),
+          gradient: LinearGradient(
+            colors: [Colors.deepOrange, Colors.orange, Colors.yellow],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.2, 0.5, 0.9],
+          ),
         ),
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15), color: Colors.white.withOpacity(0.5)),
-              margin: EdgeInsets.only(top: 25, bottom: 15),
-              child: Container(
-                padding: EdgeInsets.only(left: 15, right: 15),
-                child: Text(
-                  'Reports',
-                  style: TextStyle(
-                      fontSize: 65, fontWeight: FontWeight.bold, color: Colors.green.shade700),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.only(bottom: 20, top: 10, left: 10, right: 10),
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white,
                 ),
-              ),
-            ),
-            Row(
-              children: [
-                InkWell(
-                  highlightColor: Colors.grey.shade100.withOpacity(0.8),
-                  onTap: () async {
-                    setState(() {
-                      report = 'Reservation Report';
-                      componentWidget = ReservationsReport(
-                          allCheckIns: allCheckIns,
-                          guests: guests,
-                          bookings: bookings,
-                          payments: payments);
-                    });
-                  },
-                  child: Container(
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15.0),
-                      color: Colors.white.withOpacity(0.8),
-                      border: Border.all(color: Colors.orangeAccent, width: 1),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        SizedBox(height: 20),
-                        Icon(
-                          Icons.list_alt,
-                          color: Colors.green,
-                          size: 35,
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          'Reservations',
-                          style: TextStyle(fontSize: 12),
+                child: Center(
+                  child: Text(
+                    'Reports',
+                    style: TextStyle(
+                      color: Colors.deepOrange,
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black,
+                          blurRadius: 2.0,
+                          offset: Offset(2.0, 2.0),
                         ),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: 5,
-                ),
-                InkWell(
-                  highlightColor: Colors.grey.shade100.withOpacity(0.8),
-                  onTap: () async {
-                    setState(() {
-                      report = 'Financial Report';
-                      componentWidget = FinancialReport(
-                          allCheckIns: allCheckIns,
-                          guests: guests,
-                          bookings: bookings,
-                          payments: payments,
-                          expenses: expenses,
-                          services: services);
-                    });
-                  },
-                  child: Container(
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15.0),
-                      border: Border.all(color: Colors.orangeAccent, width: 1),
-                    ),
+              ),
+              Row(
+                children: [
+                  InkWell(
+                    highlightColor: Colors.grey.shade100,
+                    onTap: () {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) => FinancialReport()));
+                    },
                     child: Container(
+                      padding: EdgeInsets.all(15),
+                      margin: EdgeInsets.only(top: 3, bottom: 3, right: 10, left: 10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(15.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black,
+                            blurStyle: BlurStyle.outer,
+                            offset: Offset(3, 0),
+                          ),
+                          BoxShadow(
+                            color: Colors.black,
+                            blurStyle: BlurStyle.outer,
+                            offset: Offset(0, 3),
+                          ),
+                          BoxShadow(
+                            color: Colors.black,
+                            blurStyle: BlurStyle.inner,
+                            offset: Offset(-3, 0),
+                          ),
+                          BoxShadow(
+                            color: Colors.black,
+                            blurStyle: BlurStyle.inner,
+                            offset: Offset(0, -3),
+                          ),
+                        ],
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
                           SizedBox(height: 20),
                           Icon(
-                            Icons.list_alt,
+                            Icons.monetization_on_outlined,
                             color: Colors.green,
                             size: 35,
                           ),
                           SizedBox(height: 20),
-                          Text(
-                            'Financial Report',
-                            style: TextStyle(fontSize: 12),
-                          ),
+                          Text('Financial Report')
                         ],
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 10, bottom: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                          top: BorderSide(
-                        color: Colors.orange,
-                      )),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.orangeAccent,
-                          offset: Offset(0.0, 1.0), //(x,y)
-                          blurRadius: 5.0,
-                        ),
-                      ],
+                  Spacer(),
+                  InkWell(
+                    highlightColor: Colors.grey.shade100,
+                    onTap: () {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) => ReservationsReport()));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(15),
+                      margin: EdgeInsets.only(top: 3, bottom: 3, right: 10, left: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black,
+                            blurStyle: BlurStyle.outer,
+                            offset: Offset(3, 0),
+                          ),
+                          BoxShadow(
+                            color: Colors.black,
+                            blurStyle: BlurStyle.outer,
+                            offset: Offset(0, 3),
+                          ),
+                          BoxShadow(
+                            color: Colors.black,
+                            blurStyle: BlurStyle.inner,
+                            offset: Offset(-3, 0),
+                          ),
+                          BoxShadow(
+                            color: Colors.black,
+                            blurStyle: BlurStyle.inner,
+                            offset: Offset(0, -3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          SizedBox(height: 20),
+                          Icon(
+                            Icons.my_library_books_outlined,
+                            color: Colors.green,
+                            size: 35,
+                          ),
+                          SizedBox(height: 20),
+                          Text('Reservations Report')
+                        ],
+                      ),
                     ),
-                  )),
-                  Container(
-                    padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                        color: Colors.greenAccent.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(15)),
-                    child: Text('$report'),
                   ),
-                  Expanded(
-                      child: Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                          top: BorderSide(
-                        color: Colors.orange,
-                      )),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.orangeAccent,
-                          offset: Offset(0.0, 1.0), //(x,y)
-                          blurRadius: 5.0,
-                        ),
-                      ],
-                    ),
-                  ))
                 ],
               ),
-            ),
-            componentWidget != null ? componentWidget! : Container(),
-          ],
+              Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width - 50,
+                  padding: EdgeInsets.all(15),
+                  margin: EdgeInsets.only(top: 10, bottom: 3, right: 10, left: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black,
+                        blurStyle: BlurStyle.outer,
+                        offset: Offset(3, 0),
+                      ),
+                      BoxShadow(
+                        color: Colors.black,
+                        blurStyle: BlurStyle.outer,
+                        offset: Offset(0, 3),
+                      ),
+                      BoxShadow(
+                        color: Colors.black,
+                        blurStyle: BlurStyle.inner,
+                        offset: Offset(-3, 0),
+                      ),
+                      BoxShadow(
+                        color: Colors.black,
+                        blurStyle: BlurStyle.inner,
+                        offset: Offset(0, -3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Rooms Available Beds'),
+                      SizedBox(height: 15,),
+                      Container(
+                        child: Row(
+                          children: [
+                            Spacer(),
+                            Column(
+                              children: [
+                                Text('Alfonso'),
+                                FutureBuilder(
+                                  future: Provider.of<AvailableBeds>(context, listen: false)
+                                      .getRoomAvailableBeds('alfonso'),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      if (snapshot.connectionState == ConnectionState.done) {
+                                        return Container(
+                                          width: 25,
+                                          height: 125,
+                                          margin: EdgeInsets.only(top: 5),
+                                          child: ListView.builder(
+                                            itemCount: snapshot.data!.length,
+                                            itemBuilder: (context, index) => Container(
+                                                margin: EdgeInsets.only(top: 5),
+                                                child: Text('${snapshot.data![index]?.bedNumber}')),
+                                          ),
+                                        );
+                                      } else
+                                        return CircularProgressIndicator();
+                                    } else
+                                      return Text('No Data');
+                                  },
+                                )
+                              ],
+                            ),
+                            Spacer(),
+                            Column(
+                              children: [
+                                Text('Mallika'),
+                                FutureBuilder(
+                                  future: Provider.of<AvailableBeds>(context, listen: false)
+                                      .getRoomAvailableBeds('mallika'),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      if (snapshot.connectionState == ConnectionState.done) {
+                                        return Container(
+                                          width: 25,
+                                          height: 125,
+                                          margin: EdgeInsets.only(top: 5),
+                                          child: ListView.builder(
+                                            itemCount: snapshot.data!.length,
+                                            itemBuilder: (context, index) => Container(
+                                                margin: EdgeInsets.only(top: 5),
+                                                child: Text('${snapshot.data![index]?.bedNumber}')),
+                                          ),
+                                        );
+                                      } else
+                                        return CircularProgressIndicator();
+                                    } else
+                                      return Text('No Data');
+                                  },
+                                )
+                              ],
+                            ),
+                            Spacer(),
+                            Column(
+                              children: [
+                                Text('Kent'),
+                                FutureBuilder(
+                                  future: Provider.of<AvailableBeds>(context, listen: false)
+                                      .getRoomAvailableBeds('kent'),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      if (snapshot.connectionState == ConnectionState.done) {
+                                        return Container(
+                                          width: 25,
+                                          height: 125,
+                                          margin: EdgeInsets.only(top: 5),
+                                          child: ListView.builder(
+                                            itemCount: snapshot.data!.length,
+                                            itemBuilder: (context, index) => Container(
+                                                margin: EdgeInsets.only(top: 5),
+                                                child: Text('${snapshot.data![index]?.bedNumber}')),
+                                          ),
+                                        );
+                                      } else
+                                        return CircularProgressIndicator();
+                                    } else
+                                      return Text('No Data');
+                                  },
+                                )
+                              ],
+                            ),
+                            Spacer(),
+                            Column(
+                              children: [
+                                Text('Tent'),
+                                FutureBuilder(
+                                  future: Provider.of<AvailableBeds>(context, listen: false)
+                                      .getRoomAvailableBeds('tent'),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      if (snapshot.connectionState == ConnectionState.done) {
+                                        return Container(
+                                          width: 25,
+                                          height: 125,
+                                          margin: EdgeInsets.only(top: 5),
+                                          child: ListView.builder(
+                                            itemCount: snapshot.data!.length,
+                                            itemBuilder: (context, index) => Container(
+                                                margin: EdgeInsets.only(top: 5),
+                                                child: Text('${snapshot.data![index]?.bedNumber}')),
+                                          ),
+                                        );
+                                      } else
+                                        return CircularProgressIndicator();
+                                    } else
+                                      return Text('No Data');
+                                  },
+                                )
+                              ],
+                            ),
+                            Spacer(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

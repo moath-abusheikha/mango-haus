@@ -5,20 +5,6 @@ import 'package:mango_haus/models/models.dart';
 class RoomsAndBedsApi {
   Future<List<RoomAvailability?>> availableBeds(String room) async {
     List<RoomAvailability?> availableBeds = [];
-    // await FirebaseFirestore.instance
-    //     .collection('rooms_availability')
-    //     .where('roomName', isEqualTo: room.trim().toLowerCase())
-    //     .where('available', isEqualTo: true)
-    //     .snapshots()
-    //     .listen((event) {
-    //   event.docs.forEach((element) {
-    //     RoomAvailability map = RoomAvailability.fromMap(element.data());
-    //     availableBeds.add(map);
-    //     print('2 ${availableBeds.length}');
-    //   });
-    // });
-    // print('3 ${availableBeds.length}');
-    // return availableBeds;
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection("rooms_availability")
         .where('roomName', isEqualTo: room.trim().toLowerCase())
@@ -26,10 +12,9 @@ class RoomsAndBedsApi {
         .get();
     Iterable a = querySnapshot.docs.map((doc) => doc.data());
     a.forEach((element) {
-      RoomAvailability roomAvailability = RoomAvailability.fromMap(jsonDecode(jsonEncode(element)));
+      RoomAvailability roomAvailability = RoomAvailability.fromMap(element);
       availableBeds.add(roomAvailability);
     });
-    // allDocs = querySnapshot.docs.map((doc) => doc.data()).cast<Booking>().toList();
     return availableBeds;
   }
 

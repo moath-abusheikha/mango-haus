@@ -12,7 +12,6 @@ class GuestFireBaseApi {
       String encode = jsonEncode(data);
       Map<String, dynamic> map = jsonDecode(encode);
       guest = Guest.fromMap(map);
-      print('** ${guest?.passportImagePath}');
     });
     return guest;
   }

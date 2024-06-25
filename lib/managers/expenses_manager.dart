@@ -20,6 +20,11 @@ class ExpensesManager extends ChangeNotifier {
     notifyListeners();
     return expense;
   }
+  Future<List<Expenses>> getFilteredExpenses(DateTime? startDate, DateTime? endDate) async {
+    List<Expenses> allExpenses = await fireBaseApi.filteredExpenses(startDate, endDate);
+    notifyListeners();
+    return allExpenses;
+  }
   Future<List<Expenses>> getExpenses() async {
     List<Expenses> allExpenses = await fireBaseApi.getAllExpenses();
     notifyListeners();

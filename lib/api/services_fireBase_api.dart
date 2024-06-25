@@ -21,6 +21,7 @@ class ServicesFireBaseApi {
     service = Services.fromMap(map);
     return service;
   }
+
   Future<List<Services>> getAllServices() async {
     List<Services> allDocs = [];
     await FirebaseFirestore.instance
@@ -28,16 +29,38 @@ class ServicesFireBaseApi {
         .orderBy('dateTime', descending: false)
         .get()
         .then(
-          (querySnapshot) {
+      (querySnapshot) {
         for (var docSnapshot in querySnapshot.docs) {
           Services service = Services.fromMap(docSnapshot.data());
-          //print(service.dateTime);
           allDocs.add(service);
         }
       },
       onError: (e) => print("Error completing: $e"),
     );
     return allDocs;
+  }
+
+  Future<Iterable<Services>> filteredServices(
+      DateTime? startDate, DateTime? endDate, String? guestName) async {
+    List<Services>? allDocs = [];
+    Iterable<Services>? filteredQuery = [];
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection("services")
+        .orderBy('dateTime', descending: false)
+        .get();
+    Iterable a = querySnapshot.docs.map((doc) => doc.data()).toList();
+    a.forEach((element) {
+      Services service = Services.fromMap(element);
+      if (startDate != null && endDate != null) if (service.dateTime
+              .isAfter(startDate.subtract(Duration(days: 1))) &&
+          service.dateTime.isBefore(endDate.add(Duration(days: 1)))) {
+        allDocs.add(service);
+      }
+    });
+    filteredQuery = allDocs;
+    if (guestName != null)
+      filteredQuery = allDocs.where((element) => element.costumerName == guestName);
+    return filteredQuery;
   }
 
   Future<void> updateService(Services service) async {

@@ -9,7 +9,19 @@ class PaymentFireBaseApi {
     await docCheckInOut.set(json);
   }
 
-// ToDo: get payment
+  Future<Payment?> getCurrentPayment(String guestName, DateTime checkIn, DateTime checkout) async {
+    Payment? payment;
+    print('$guestName - $checkIn - $checkout');
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('payments')
+        .where('guestName', isEqualTo: guestName)
+        .get();
+    Map<String, dynamic> result = querySnapshot.docs.first.data();
+    payment = Payment.fromMap(result);
+    // if (payment.remaining == 0) return null;
+    return payment;
+  }
+
   Future<Payment?> getPayment(String guestName) async {
     Payment? payment;
     final querySnapshot = await FirebaseFirestore.instance
@@ -25,17 +37,28 @@ class PaymentFireBaseApi {
 
   Future<void> updatePayment(Payment payment) async {
     try {
+      int docNumber = 0;
       final post = await FirebaseFirestore.instance
           .collection('payments')
           .where('guestName', isEqualTo: payment.guestName)
-          .limit(1)
           .get()
           .then((QuerySnapshot snapshot) {
-        return snapshot.docs[0].reference;
+        int i = 0;
+        snapshot.docs.forEach((element) {
+          Map<String, dynamic> a = element.data() as Map<String, dynamic>;
+          Payment s = Payment.fromMap(a);
+          if (s.checkIn?.day == payment.checkIn?.day &&
+              s.checkIn?.month == payment.checkIn?.month &&
+              s.checkIn?.year == payment.checkIn?.year) docNumber = i;
+          i++;
+        });
+        return snapshot.docs[docNumber].reference;
       });
 
       var batch = FirebaseFirestore.instance.batch();
       batch.update(post, {
+        'checkIn': payment.checkIn,
+        'checkOut': payment.checkOut,
         'guestName': payment.guestName,
         'paymentAmount': payment.paymentAmounts,
         'paymentDate': payment.paymentDates,
@@ -47,6 +70,7 @@ class PaymentFireBaseApi {
       print(e);
     }
   }
+
   Future<List<Payment>> getAllPayments() async {
     List<Payment>? allDocs = [];
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -61,5 +85,4 @@ class PaymentFireBaseApi {
     // allDocs = querySnapshot.docs.map((doc) => doc.data()).cast<Payment>().toList();
     return allDocs;
   }
-
 }

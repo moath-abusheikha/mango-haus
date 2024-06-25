@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:mango_haus/managers/managers.dart';
 import 'package:mango_haus/models/models.dart';
-import 'package:provider/provider.dart';
 import 'package:country_picker/country_picker.dart';
+import 'package:provider/provider.dart';
+import '../managers/managers.dart';
 
 class Reservation extends StatefulWidget {
   final List<Guest> guests;
@@ -44,21 +44,61 @@ class _ReservationState extends State<Reservation> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('New Reservation'),
-      ),
-      body: Center(
+    return Material(
+      child: Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          // image: DecorationImage(
+          //     image: AssetImage('images/paint-stain.png'), fit: BoxFit.cover),
+          gradient: LinearGradient(
+            colors: [Colors.deepOrange, Colors.orange, Colors.yellow],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.2, 0.5, 0.9],
+          ),
+        ),
         child: SingleChildScrollView(
           child: Column(
             children: [
+              Center(
+                child: Container(
+                  margin: EdgeInsets.only(top: 20, bottom: 20),
+                  padding: EdgeInsets.only(top: 30),
+                  child: Text(
+                    'New Reservation',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black,
+                          blurRadius: 2.0,
+                          offset: Offset(2.0, 2.0),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               Container(
                 margin: EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15.0),
                     color: Colors.white,
+                    borderRadius: BorderRadius.circular(15.0),
                     border: Border.all(color: Colors.orangeAccent, width: 1),
-                    boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
+                    boxShadow: [
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          blurStyle: BlurStyle.inner,
+                          offset: Offset(-2, -2)),
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          blurStyle: BlurStyle.inner,
+                          offset: Offset(2, 2))
+                    ]),
                 child: TextField(
                   controller: guest_name,
                   onSubmitted: (value) {
@@ -74,18 +114,29 @@ class _ReservationState extends State<Reservation> {
                   },
                   decoration: InputDecoration(
                       labelText: 'guest name',
-                      prefixIcon: Icon(Icons.contact_page_outlined, color: Colors.orangeAccent),
+                      labelStyle: TextStyle(fontSize: 20, color: Colors.green),
+                      prefixIcon: Icon(Icons.contact_page_outlined, color: Colors.green),
                       border: InputBorder.none),
                 ),
               ),
               Container(
-                width: MediaQuery.of(context).size.width - 10,
                 margin: EdgeInsets.all(5),
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(15.0),
                     border: Border.all(color: Colors.orangeAccent, width: 1),
-                    boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
+                    boxShadow: [
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          blurStyle: BlurStyle.inner,
+                          offset: Offset(-2, -2)),
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          blurStyle: BlurStyle.inner,
+                          offset: Offset(2, 2))
+                    ]),
                 child: guest != null
                     ? Container(
                         margin: EdgeInsets.all(15),
@@ -145,11 +196,23 @@ class _ReservationState extends State<Reservation> {
                   Container(
                     width: 110,
                     padding: EdgeInsets.all(5),
+                    margin: EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.0),
                         color: Colors.white,
+                        borderRadius: BorderRadius.circular(15.0),
                         border: Border.all(color: Colors.orangeAccent, width: 1),
-                        boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
+                        boxShadow: [
+                          BoxShadow(
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                              blurStyle: BlurStyle.inner,
+                              offset: Offset(-2, -2)),
+                          BoxShadow(
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                              blurStyle: BlurStyle.inner,
+                              offset: Offset(2, 2))
+                        ]),
                     child: Row(
                       children: [
                         SizedBox(
@@ -174,10 +237,21 @@ class _ReservationState extends State<Reservation> {
                     margin: EdgeInsets.only(left: 5, right: 5),
                     padding: EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.0),
                         color: Colors.white,
+                        borderRadius: BorderRadius.circular(15.0),
                         border: Border.all(color: Colors.orangeAccent, width: 1),
-                        boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
+                        boxShadow: [
+                          BoxShadow(
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                              blurStyle: BlurStyle.inner,
+                              offset: Offset(-2, -2)),
+                          BoxShadow(
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                              blurStyle: BlurStyle.inner,
+                              offset: Offset(2, 2))
+                        ]),
                     child: DropdownButton(
                       underline: const SizedBox(),
                       value: bookOpt,
@@ -199,10 +273,21 @@ class _ReservationState extends State<Reservation> {
                     margin: EdgeInsets.all(5),
                     padding: EdgeInsets.only(right: 5),
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.0),
                         color: Colors.white,
+                        borderRadius: BorderRadius.circular(15.0),
                         border: Border.all(color: Colors.orangeAccent, width: 1),
-                        boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
+                        boxShadow: [
+                          BoxShadow(
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                              blurStyle: BlurStyle.inner,
+                              offset: Offset(-2, -2)),
+                          BoxShadow(
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                              blurStyle: BlurStyle.inner,
+                              offset: Offset(2, 2))
+                        ]),
                     child: TextField(
                       controller: totalPriceTEC,
                       textAlign: TextAlign.left,
@@ -223,10 +308,21 @@ class _ReservationState extends State<Reservation> {
                   Container(
                       padding: EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.0),
                           color: Colors.white,
+                          borderRadius: BorderRadius.circular(15.0),
                           border: Border.all(color: Colors.orangeAccent, width: 1),
-                          boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
+                          boxShadow: [
+                            BoxShadow(
+                                blurRadius: 3.0,
+                                color: Colors.black,
+                                blurStyle: BlurStyle.inner,
+                                offset: Offset(-2, -2)),
+                            BoxShadow(
+                                blurRadius: 3.0,
+                                color: Colors.black,
+                                blurStyle: BlurStyle.inner,
+                                offset: Offset(2, 2))
+                          ]),
                       child: DropdownButton(
                         underline: const SizedBox(),
                         value: roomsDDValue,
@@ -247,10 +343,21 @@ class _ReservationState extends State<Reservation> {
                     height: 55,
                     margin: EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.0),
                         color: Colors.white,
+                        borderRadius: BorderRadius.circular(15.0),
                         border: Border.all(color: Colors.orangeAccent, width: 1),
-                        boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
+                        boxShadow: [
+                          BoxShadow(
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                              blurStyle: BlurStyle.inner,
+                              offset: Offset(-2, -2)),
+                          BoxShadow(
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                              blurStyle: BlurStyle.inner,
+                              offset: Offset(2, 2))
+                        ]),
                     child: Center(
                         child: Text(
                       'Nights : ${nights}',
@@ -263,10 +370,21 @@ class _ReservationState extends State<Reservation> {
                     margin: EdgeInsets.all(5),
                     padding: EdgeInsets.only(right: 5),
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.0),
                         color: Colors.white,
+                        borderRadius: BorderRadius.circular(15.0),
                         border: Border.all(color: Colors.orangeAccent, width: 1),
-                        boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
+                        boxShadow: [
+                          BoxShadow(
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                              blurStyle: BlurStyle.inner,
+                              offset: Offset(-2, -2)),
+                          BoxShadow(
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                              blurStyle: BlurStyle.inner,
+                              offset: Offset(2, 2))
+                        ]),
                     child: TextField(
                       controller: commission_TEC,
                       textAlign: TextAlign.left,
@@ -283,10 +401,21 @@ class _ReservationState extends State<Reservation> {
               Container(
                 margin: EdgeInsets.all(5),
                 decoration: BoxDecoration(
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(15.0),
                     border: Border.all(color: Colors.orangeAccent, width: 1),
-                    color: Colors.white,
-                    boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
+                    boxShadow: [
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          blurStyle: BlurStyle.inner,
+                          offset: Offset(-2, -2)),
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          blurStyle: BlurStyle.inner,
+                          offset: Offset(2, 2))
+                    ]),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -303,10 +432,21 @@ class _ReservationState extends State<Reservation> {
               Container(
                 margin: EdgeInsets.all(5),
                 decoration: BoxDecoration(
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(15.0),
                     border: Border.all(color: Colors.orangeAccent, width: 1),
-                    color: Colors.white,
-                    boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
+                    boxShadow: [
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          blurStyle: BlurStyle.inner,
+                          offset: Offset(-2, -2)),
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          blurStyle: BlurStyle.inner,
+                          offset: Offset(2, 2))
+                    ]),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -348,7 +488,18 @@ class _ReservationState extends State<Reservation> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(15.0),
                     border: Border.all(color: Colors.orangeAccent, width: 1),
-                    boxShadow: [BoxShadow(blurRadius: 2.0, color: Colors.orangeAccent)]),
+                    boxShadow: [
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          blurStyle: BlurStyle.inner,
+                          offset: Offset(-2, -2)),
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          blurStyle: BlurStyle.inner,
+                          offset: Offset(2, 2))
+                    ]),
                 child: TextField(
                   controller: note_TEC,
                   decoration: InputDecoration(
@@ -360,12 +511,11 @@ class _ReservationState extends State<Reservation> {
                       )),
                 ),
               ),
-              Container(
-                margin: EdgeInsets.all(15),
-                width: 80,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () async {
+              GestureDetector(
+                onTap: () async {
+                  if (guest_name.text.isNotEmpty &&
+                      number_of_guests.text.isNotEmpty &&
+                      totalPriceTEC.text.isNotEmpty) {
                     if (!guestExist) {
                       guest = Guest(
                         '',
@@ -377,9 +527,11 @@ class _ReservationState extends State<Reservation> {
                     }
                     List<ReservationModel?> guestReserve =
                         await Provider.of<ReservationManager>(context, listen: false)
-                            .getReservationByName(guest!.name);
-                    ReservationModel booking = ReservationModel(note_TEC.text,null,null,'',
-                        commission: double.parse(commission_TEC.text),
+                            .getReservationByName(guest!.name, 'reserved');
+                    ReservationModel booking = ReservationModel(note_TEC.text, null, null, [],
+                        commission: commission_TEC.text.toString().isNotEmpty
+                            ? double.parse(commission_TEC.text)
+                            : 0,
                         bookingDate: bookingDate,
                         totalPrice: double.parse(totalPriceTEC.text),
                         roomPrice: double.parse(totalPriceTEC.text) / nights,
@@ -390,7 +542,8 @@ class _ReservationState extends State<Reservation> {
                         guestName: guest!.name,
                         nights: nights,
                         room: roomsDDValue.toLowerCase(),
-                        status: 'reserved');
+                        status: 'reserved',
+                        fullyPaid: false);
                     int i = 0;
                     for (i = 0; i < guestReserve.length; i++) {
                       if (booking == guestReserve[i]) break;
@@ -398,42 +551,101 @@ class _ReservationState extends State<Reservation> {
                     if (i == guestReserve.length) {
                       await Provider.of<ReservationManager>(context, listen: false)
                           .addGuestReservation(booking);
-                      ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
-                          content: new Text('${guest_name.text} reservation completed')));
+                      showDialog(
+                        barrierColor: Colors.black.withOpacity(0.4),
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text('Reservation Complete'),
+                          content: Text(
+                            '${guest?.name}\'s reservation completed',
+                            style: TextStyle(color: Colors.black),
+                            textAlign: TextAlign.center,
+                          ),
+                          actions: [
+                            ElevatedButton(
+                              child: Text("Continue"),
+                              onPressed: () {
+                                setState(() {
+                                  bookingDate = DateFormat('EEEE, d MMM, yyyy')
+                                      .format(DateTime.now())
+                                      .toString();
+                                  guest = null;
+                                  guest_name.text = '';
+                                  commission_TEC.text = '';
+                                  guestExist = false;
+                                  number_of_guests.text = '';
+                                  roomsDDValue = rooms.first;
+                                  phoneNumberTEC.text = '';
+                                  countryKey = '';
+                                  note_TEC.text = '';
+                                  countryFlag = '';
+                                  countryName = '';
+                                  bookOpt = 'Booking';
+                                  totalPriceTEC.clear();
+                                  nights = 0;
+                                  totalPrice = 0;
+                                  netPrice = 0;
+                                  checkInDate = DateTime.now();
+                                  checkOutDate = DateTime.now().add(Duration(days: 1));
+                                });
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
                     } else
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          new SnackBar(content: new Text('${guest_name.text} reservation exist')));
-
-                    setState(() {
-                      bookingDate =
-                          DateFormat('EEEE, d MMM, yyyy').format(DateTime.now()).toString();
-                      guest = null;
-                      guest_name.text = '';
-                      commission_TEC.text = '';
-                      guestExist = false;
-                      number_of_guests.text = '';
-                      roomsDDValue = rooms.first;
-                      phoneNumberTEC.text = '';
-                      countryKey = '';
-                      note_TEC.text = '';
-                      countryFlag = '';
-                      countryName = '';
-                      bookOpt = 'Booking';
-                      totalPriceTEC.clear();
-                      nights = 0;
-                      totalPrice = 0;
-                      netPrice = 0;
-                      checkInDate = DateTime.now();
-                      checkOutDate = DateTime.now().add(Duration(days: 1));
-                    });
-                  },
-                  child: Text('Save'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orangeAccent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                  ),
+                      showDialog(
+                        barrierColor: Colors.black.withOpacity(0.4),
+                        context: context,
+                        builder: (context) => Center(
+                          child: Container(
+                            color: Colors.black,
+                            child: Text(
+                              '${guest_name.text} reservation exist',
+                              style: TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      );
+                  }
+                },
+                child: Container(
+                  child: Center(
+                      child: Text(
+                    'Save',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  )),
+                  margin: EdgeInsets.all(15),
+                  width: 100,
+                  height: 50,
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                            blurStyle: BlurStyle.inner,
+                            color: Colors.black,
+                            offset: Offset(0, 2),
+                            blurRadius: 10,
+                            spreadRadius: 1),
+                      ],
+                      gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.orange.shade100,
+                            Colors.orange.shade300,
+                            Colors.orange.shade500,
+                            Colors.orange.shade600,
+                          ],
+                          stops: [
+                            0.0,
+                            0.3,
+                            0.6,
+                            0.9
+                          ])),
                 ),
               )
             ],
