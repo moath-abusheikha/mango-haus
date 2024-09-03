@@ -169,7 +169,7 @@ class _CheckOutState extends State<CheckOut> {
                           top: 5,
                         ),
                         child: Text(
-                          'Choose Check In',
+                          'Choose Reservation',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 15,
@@ -196,6 +196,7 @@ class _CheckOutState extends State<CheckOut> {
                               itemBuilder: ((context, index) => GestureDetector(
                                     onTap: () async {
                                       currentReservation = reservations[index];
+                                      checkoutDate = currentReservation!.checkout;
                                       payment =
                                           await Provider.of<PaymentManager>(context, listen: false)
                                               .getCurrentGuestPayment(
@@ -462,6 +463,7 @@ class _CheckOutState extends State<CheckOut> {
                                     remaining = 0;
                                     roomName = '';
                                   });
+                                  Navigator.pop(context);
                                 },
                                 child: Text('Continue'))
                           ],

@@ -65,50 +65,51 @@ class _ReservationsReportState extends State<ReservationsReport> {
                 ),
               ),
             ),
-            Container(
-              margin: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15.0),
-                  border: Border.all(color: Colors.orangeAccent, width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                        blurRadius: 3.0,
-                        color: Colors.black,
-                        blurStyle: BlurStyle.inner,
-                        offset: Offset(-2, -2)),
-                    BoxShadow(
-                        blurRadius: 3.0,
-                        color: Colors.black,
-                        blurStyle: BlurStyle.inner,
-                        offset: Offset(2, 2))
-                  ]),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.calendar_month, color: Colors.orangeAccent),
-                  TextButton(
-                    onPressed: () async {
-                      DateTimeRange? dateTimeRange = await showDateRangePicker(
-                          initialDateRange:
-                              DateTimeRange(start: DateTime.now(), end: DateTime.now()),
-                          context: context,
-                          firstDate: DateTime(2023),
-                          lastDate: DateTime(2030));
-                      if (dateTimeRange != null) {
-                        setState(() {
-                          selectedDate = dateTimeRange;
-                          startCheckInDate = selectedDate!.start;
-                          endCheckInDate = selectedDate!.end;
-                        });
-                      }
-                    },
-                    child: Text(
+            GestureDetector(
+              onTap: () async {
+                DateTimeRange? dateTimeRange = await showDateRangePicker(
+                    initialDateRange: DateTimeRange(start: DateTime.now(), end: DateTime.now()),
+                    context: context,
+                    firstDate: DateTime(2023),
+                    lastDate: DateTime(2030));
+                if (dateTimeRange != null) {
+                  setState(() {
+                    selectedDate = dateTimeRange;
+                    startCheckInDate = selectedDate!.start;
+                    endCheckInDate = selectedDate!.end;
+                  });
+                }
+              },
+              child: Container(
+                margin: EdgeInsets.all(5),
+                height: 50,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15.0),
+                    border: Border.all(color: Colors.orangeAccent, width: 1),
+                    boxShadow: [
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          blurStyle: BlurStyle.inner,
+                          offset: Offset(-2, -2)),
+                      BoxShadow(
+                          blurRadius: 3.0,
+                          color: Colors.black,
+                          blurStyle: BlurStyle.inner,
+                          offset: Offset(2, 2))
+                    ]),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.calendar_month, color: Colors.orangeAccent),
+                    Text('Check-in between:'),
+                    Text(
                       '${DateFormat('EEEE, d MMM, yyyy').format(startCheckInDate)} - ${DateFormat('EEEE, d MMM, yyyy').format(endCheckInDate)}',
                       style: TextStyle(color: Colors.black),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             Container(
@@ -118,43 +119,42 @@ class _ReservationsReportState extends State<ReservationsReport> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 90,
-                    height: 50,
-                    padding: EdgeInsets.only(left: 10),
-                    margin: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15.0),
-                        border: Border.all(color: Colors.orangeAccent, width: 1),
-                        boxShadow: [
-                          BoxShadow(
-                              blurRadius: 3.0,
-                              color: Colors.black,
-                              blurStyle: BlurStyle.inner,
-                              offset: Offset(-2, -2)),
-                          BoxShadow(
-                              blurRadius: 3.0,
-                              color: Colors.black,
-                              blurStyle: BlurStyle.inner,
-                              offset: Offset(2, 2))
-                        ]),
-                    child: Row(
-                      children: [
-                        Text('Filter'),
-                        IconButton(
-                            onPressed: () {
-                              setState(() {
-                                showFilter = !showFilter;
-                                if (showFilter == false) {
-                                  roomName = 'Room Name';
-                                  status = 'Status';
-                                  guestName = null;
-                                }
-                              });
-                            },
-                            icon: Icon(Icons.keyboard_double_arrow_right)),
-                      ],
+                  GestureDetector(
+                    onTap: () => setState(() {
+                      showFilter = !showFilter;
+                      if (showFilter == false) {
+                        roomName = 'Room Name';
+                        status = 'Status';
+                        guestName = null;
+                      }
+                    }),
+                    child: Container(
+                      width: 90,
+                      height: 50,
+                      padding: EdgeInsets.only(left: 10),
+                      margin: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(15.0),
+                          border: Border.all(color: Colors.orangeAccent, width: 1),
+                          boxShadow: [
+                            BoxShadow(
+                                blurRadius: 3.0,
+                                color: Colors.black,
+                                blurStyle: BlurStyle.inner,
+                                offset: Offset(-2, -2)),
+                            BoxShadow(
+                                blurRadius: 3.0,
+                                color: Colors.black,
+                                blurStyle: BlurStyle.inner,
+                                offset: Offset(2, 2))
+                          ]),
+                      child: Row(
+                        children: [
+                          Text('Filter'),
+                          Icon(Icons.keyboard_double_arrow_right),
+                        ],
+                      ),
                     ),
                   ),
                   showFilter
@@ -232,6 +232,8 @@ class _ReservationsReportState extends State<ReservationsReport> {
                                                 labelText: 'guest name',
                                                 border: InputBorder.none,
                                               ),
+                                              onSubmitted: (value) =>
+                                                  value.length == 0 ? guestName = null : null,
                                             );
                                           },
                                           optionsViewBuilder: (BuildContext context,
@@ -304,6 +306,9 @@ class _ReservationsReportState extends State<ReservationsReport> {
                                         }).toList(),
                                         onChanged: (String? value) {
                                           setState(() {
+                                            if (guestNameTEC.text.isEmpty) {
+                                              guestName = null;
+                                            }
                                             roomName = value!;
                                           });
                                         },
@@ -374,50 +379,53 @@ class _ReservationsReportState extends State<ReservationsReport> {
                     ]),
                     builder: (context, snapshot) {
                       List<DataRow> dataRows = [];
+                      if (snapshot.data?[0].length == 0) {
+                        return Text('No data');
+                      }
                       if (snapshot.data != null)
-                        for (int i = 0; i < snapshot.data!.length; i++) {
-                          DataRow dataRow = DataRow(cells: [
-                            DataCell(
-                              Center(
-                                  child: Text(
-                                snapshot.data![0].elementAt(i).guestName,
-                                textAlign: TextAlign.center,
-                              )),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text(
-                                      '${DateFormat('EEEE, d MMM, yyyy').format(snapshot.data![0].elementAt(i).checkIn)} - ${DateFormat('EEEE, d MMM, yyyy').format(snapshot.data![0].elementAt(i).checkout)}',
-                                      textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text('${snapshot.data![0].elementAt(i).nights}',
-                                      textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text('${snapshot.data![0].elementAt(i).guestsCount}',
-                                      textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text(snapshot.data![0].elementAt(i).room,
-                                      textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text('${snapshot.data![0].elementAt(i).totalPrice}',
-                                      textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text('${snapshot.data![0].elementAt(i).status}',
-                                      textAlign: TextAlign.center)),
-                            ),
-                          ]);
-                          dataRows.add(dataRow);
-                        }
+                      for (int i = 0; i < snapshot.data![0].length; i++) {
+                        DataRow dataRow = DataRow(cells: [
+                          DataCell(
+                            Center(
+                                child: Text(
+                              snapshot.data![0].elementAt(i).guestName,
+                              textAlign: TextAlign.center,
+                            )),
+                          ),
+                          DataCell(
+                            Center(
+                                child: Text(
+                                    '${DateFormat('EEEE, d MMM, yyyy').format(snapshot.data![0].elementAt(i).checkIn)} - ${DateFormat('EEEE, d MMM, yyyy').format(snapshot.data![0].elementAt(i).checkout)}',
+                                    textAlign: TextAlign.center)),
+                          ),
+                          DataCell(
+                            Center(
+                                child: Text('${snapshot.data![0].elementAt(i).nights}',
+                                    textAlign: TextAlign.center)),
+                          ),
+                          DataCell(
+                            Center(
+                                child: Text('${snapshot.data![0].elementAt(i).guestsCount}',
+                                    textAlign: TextAlign.center)),
+                          ),
+                          DataCell(
+                            Center(
+                                child: Text(snapshot.data![0].elementAt(i).room,
+                                    textAlign: TextAlign.center)),
+                          ),
+                          DataCell(
+                            Center(
+                                child: Text('${snapshot.data![0].elementAt(i).totalPrice}',
+                                    textAlign: TextAlign.center)),
+                          ),
+                          DataCell(
+                            Center(
+                                child: Text('${snapshot.data![0].elementAt(i).status}',
+                                    textAlign: TextAlign.center)),
+                          ),
+                        ]);
+                        dataRows.add(dataRow);
+                      }
                       if (snapshot.connectionState == ConnectionState.done) {
                         return SingleChildScrollView(
                           scrollDirection: Axis.horizontal,

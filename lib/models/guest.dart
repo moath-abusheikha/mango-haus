@@ -5,9 +5,9 @@ Guest guestFromJson(String str) => Guest.fromMap(json.decode(str));
 String guestToJson(Guest data) => json.encode(data.toMap());
 
 class Guest {
-  String name, passportImagePath, phoneNumber, Nationality;
+  String name, passportImagePath, phoneNumber, nationality;
 
-  Guest(this.passportImagePath, this.phoneNumber, this.Nationality,
+  Guest(this.passportImagePath, this.phoneNumber, this.nationality,
       {required this.name});
 
   factory Guest.fromMap(Map<String, dynamic> map) {
@@ -19,7 +19,7 @@ class Guest {
     Map<String, dynamic> map = {
       'passportImage': passportImagePath,
       'PhoneNumber': phoneNumber,
-      'Nationality': Nationality,
+      'Nationality': nationality,
       'Name': name
     };
     return map;

@@ -14,11 +14,11 @@ class PaymentManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Payment?> getGuestPayment(String guestName) async {
-    Payment? payment;
-    payment = await fireBaseApi.getPayment(guestName);
+  Future<List<Payment>> getGuestPayment(String guestName) async {
+    List<Payment> payments;
+    payments = await fireBaseApi.getPayment(guestName);
     notifyListeners();
-    return payment;
+    return payments;
   }
   Future<Payment?> getCurrentGuestPayment(String guestName,DateTime checkIn,DateTime checkOut) async {
     Payment? payment;

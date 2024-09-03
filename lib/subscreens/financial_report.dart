@@ -113,6 +113,8 @@ class _FinancialReportState extends State<FinancialReport> {
                       List<DataRow> dataRows = [];
                       if (totals.isNotEmpty)
                         for (int i = 0; i < totals.length; i++) {
+                          int roomCount = int.parse(totals[i]['nights'].toString());
+                          double roomOccupancy = roomCount / 360;
                           DataRow dataRow = DataRow(cells: [
                             DataCell(
                               Center(
@@ -123,12 +125,14 @@ class _FinancialReportState extends State<FinancialReport> {
                             ),
                             DataCell(
                               Center(
-                                  child:
-                                      Text('${totals[i]['revenue']}', textAlign: TextAlign.center)),
+                                  child: Text(
+                                      '${double.parse(totals[i]['revenue'].toString()).toStringAsPrecision(6)}',
+                                      textAlign: TextAlign.center)),
                             ),
                             DataCell(
                               Center(
-                                  child: Text('${totals[i]['commission']}',
+                                  child: Text(
+                                      '${double.parse(totals[i]['commission'].toString()).toStringAsPrecision(3)}',
                                       textAlign: TextAlign.center)),
                             ),
                             DataCell(
@@ -167,8 +171,7 @@ class _FinancialReportState extends State<FinancialReport> {
                             ),
                             DataCell(
                               Center(
-                                  child: Text(
-                                      '${(double.parse(totals[i]['nights'].toString()) / 360).toStringAsPrecision(2)}',
+                                  child: Text('${roomOccupancy.toStringAsPrecision(2)}',
                                       textAlign: TextAlign.center)),
                             ),
                           ]);
@@ -221,71 +224,64 @@ class _FinancialReportState extends State<FinancialReport> {
       'November',
       'December'
     ];
+    List totalMonthlyRoomRevenue = List.generate(12, (index) => 0, growable: false),
+        totalMonthlyCommission = List.generate(12, (index) => 0, growable: false),
+        totalMonthlyDailyExpenses = List.generate(12, (index) => 0, growable: false),
+        totalMonthlyRent = List.generate(12, (index) => 0, growable: false),
+        totalMonthlyElectricity = List.generate(12, (index) => 0, growable: false),
+        totalMonthlyWater = List.generate(12, (index) => 0, growable: false),
+        totalMonthlyServices = List.generate(12, (index) => 0, growable: false),
+        totalMonthlyInternet = List.generate(12, (index) => 0, growable: false);
+    List<int> totalNights = List.generate(12, (index) => 0, growable: false);
+    Map<String, Object> monthsValues;
     List<Map<String, Object>> totals = [];
-    double totalMonthlyRoomRevenue = 0,
-        totalMonthlyCommission = 0,
-        totalMonthlyDailyExpenses = 0,
-        totalMonthlyRent = 0,
-        totalMonthlyElectricity = 0,
-        totalMonthlyWater = 0,
-        totalMonthlyServices = 0,
-        totalMonthlyInternet = 0,
-        totalNights = 0;
-    Duration yearDiff = lastDate.difference(firstDate);
-    int numberOfMonths = (yearDiff.inDays * 12 / 365).floor();
-    if (yearDiff.inDays < 366) {
-      numberOfMonths = firstDate.month;
+    for (int i = 0; i < reservations.length; i++) {
+      int index = reservations[i]!.checkIn.month - 1;
+      totalMonthlyRoomRevenue[index] += reservations[i]!.totalPrice;
+      totalMonthlyCommission[index] += reservations[i]!.commission;
+      totalNights[index] += reservations[i]!.nights;
     }
-    for (int i = firstDate.month; i <= numberOfMonths + 1; i++) {
-      Map<String, Object> monthValues;
-      for (int j = 0; j < reservations.length; j++) {
-        if (reservations[j]!.checkIn.month == i) {
-          totalMonthlyRoomRevenue += reservations[j]!.totalPrice;
-          totalMonthlyCommission += reservations[j]!.commission;
-          totalNights += reservations[j]!.nights;
-        }
-      }
-      for (int j = 0; j < services.length; j++) {
-        if (services[j]!.dateTime.month == i) {
-          totalMonthlyServices += services[j]!.amount;
-        }
-      }
-      for (int j = 0; j < expenses.length; j++) {
-        if (expenses[j]!.date.month == i) {
-          if (expenses[j]!.type.trim().toLowerCase() == 'daily')
-            totalMonthlyDailyExpenses += expenses[j]!.amount;
-          if (expenses[j]!.type.trim().toLowerCase() == 'rent')
-            totalMonthlyRent += expenses[j]!.amount;
-          if (expenses[j]!.type.trim().toLowerCase() == 'electricity')
-            totalMonthlyElectricity += expenses[j]!.amount;
-          if (expenses[j]!.type.trim().toLowerCase() == 'water')
-            totalMonthlyWater += expenses[j]!.amount;
-          if (expenses[j]!.type.trim().toLowerCase() == 'internet')
-            totalMonthlyInternet += expenses[j]!.amount;
-        }
-      }
-      monthValues = {
-        'month': months[(i - 1) % 12],
-        'nights': totalNights,
-        'revenue': totalMonthlyRoomRevenue,
-        'commission': totalMonthlyCommission,
-        'services': totalMonthlyServices,
-        'daily': totalMonthlyDailyExpenses,
-        'rent': totalMonthlyRent,
-        'water': totalMonthlyWater,
-        'electricity': totalMonthlyElectricity,
-        'internet': totalMonthlyInternet
+    for (int j = 0; j < services.length; j++) {
+      int index = reservations[j]!.checkIn.month - 1;
+      totalMonthlyServices[index] += services[j]!.amount;
+    }
+    for (int j = 0; j < expenses.length; j++) {
+      int index = reservations[j]!.checkIn.month - 1;
+      if (expenses[j]!.type.trim().toLowerCase() == 'daily')
+        totalMonthlyDailyExpenses[index] += expenses[j]!.amount;
+      if (expenses[j]!.type.trim().toLowerCase() == 'rent')
+        totalMonthlyRent[index] += expenses[j]!.amount;
+      if (expenses[j]!.type.trim().toLowerCase() == 'electricity')
+        totalMonthlyElectricity[index] += expenses[j]!.amount;
+      if (expenses[j]!.type.trim().toLowerCase() == 'water')
+        totalMonthlyWater[index] += expenses[j]!.amount;
+      if (expenses[j]!.type.trim().toLowerCase() == 'internet')
+        totalMonthlyInternet[index] += expenses[j]!.amount;
+    }
+    for (int i = 0; i < 12; i++) {
+      if (totalNights[i] == 0 &&
+          totalMonthlyRoomRevenue[i] == 0 &&
+          totalMonthlyCommission[i] == 0 &&
+          totalMonthlyServices[i] == 0 &&
+          totalMonthlyDailyExpenses[i] == 0 &&
+          totalMonthlyRent[i] == 0 &&
+          totalMonthlyWater[i] == 0 &&
+          totalMonthlyElectricity[i] == 0 &&
+          totalMonthlyInternet[i] == 0) continue;
+
+      monthsValues = {
+        'month': months[i],
+        'nights': totalNights[i],
+        'revenue': totalMonthlyRoomRevenue[i],
+        'commission': totalMonthlyCommission[i],
+        'services': totalMonthlyServices[i],
+        'daily': totalMonthlyDailyExpenses[i],
+        'rent': totalMonthlyRent[i],
+        'water': totalMonthlyWater[i],
+        'electricity': totalMonthlyElectricity[i],
+        'internet': totalMonthlyInternet[i]
       };
-      totals.add(monthValues);
-      totalMonthlyRoomRevenue = 0;
-      totalMonthlyCommission = 0;
-      totalMonthlyDailyExpenses = 0;
-      totalMonthlyRent = 0;
-      totalMonthlyElectricity = 0;
-      totalMonthlyWater = 0;
-      totalMonthlyServices = 0;
-      totalMonthlyInternet = 0;
-      totalNights = 0;
+      totals.add(monthsValues);
     }
     return totals;
   }

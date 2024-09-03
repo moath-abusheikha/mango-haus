@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:mango_haus/models/models.dart';
 
 class GuestFireBaseApi {
@@ -24,9 +25,8 @@ class GuestFireBaseApi {
         .then(
       (querySnapshot) {
         for (var docSnapshot in querySnapshot.docs) {
-          // print('${guestModel.fromMap(docSnapshot.data()).name} ${docSnapshot.exists}');
-          // if (docSnapshot.exists)
-          allDocs.add(Guest.fromMap(docSnapshot.data()));
+          Guest guest = Guest.fromMap(docSnapshot.data());
+          allDocs.add(guest);
         }
       },
       onError: (e) => print("Error completing: $e"),
@@ -64,12 +64,19 @@ class GuestFireBaseApi {
         FirebaseFirestore.instance.collection('guests').doc(guest.name.toLowerCase().trim());
     await docGuest.update({
       'passportImage': guest.passportImagePath,
-      'phoneNumber': guest.phoneNumber,
-      'country': guest.Nationality,
-      'name': guest.name
+      'PhoneNumber': guest.phoneNumber,
+      'Nationality': guest.nationality,
+      'Name': guest.name
     });
   }
-
-
-
+  Future<void> changeGuestInfo(Guest currentGuest,Guest updatedGuest) async {
+    final docGuest =
+    FirebaseFirestore.instance.collection('guests').doc(currentGuest.name.toLowerCase().trim());
+    await docGuest.update({
+      'passportImage': updatedGuest.passportImagePath,
+      'PhoneNumber': updatedGuest.phoneNumber,
+      'Nationality': updatedGuest.nationality,
+      'Name': updatedGuest.name
+    });
+  }
 }

@@ -5,10 +5,10 @@ import 'package:mango_haus/models/models.dart';
 class BookingFireBaseApi {
   Future<List<ReservationModel?>> getReservationByName(String guestName, String status) async {
     List<ReservationModel?> bookings = [];
-    await FirebaseFirestore.instance
+    FirebaseFirestore.instance
         .collection('reservations')
-        .where('guestName', isEqualTo: guestName)
-        .where('status', isEqualTo: status)
+        .where('guestName', isEqualTo: 'me')
+        .where('status', isEqualTo: 'checkedIn')
         .orderBy('checkIn')
         .snapshots()
         .listen((event) {
@@ -17,6 +17,7 @@ class BookingFireBaseApi {
         bookings.add(map);
       });
     });
+    // print('++ $bookings');
     return bookings;
   }
 
@@ -54,16 +55,41 @@ class BookingFireBaseApi {
           element.checkIn.month == startDate.month &&
           element.checkIn.day >= startDate.day));
     }
-    if (endDate != null)
-      filteredQuery = filteredQuery.where((element) => (element.checkIn.year == endDate.year &&
-          element.checkIn.month == endDate.month &&
-          element.checkIn.day <= endDate.day));
+    if (endDate != null) {
+      filteredQuery = filteredQuery.where((element) {
+        return element.checkIn.isBefore(endDate);
+      });
+    }
     if (roomName != null && roomName.trim().toLowerCase() != 'room name')
       filteredQuery =
           filteredQuery.where((element) => element.room == roomName.trim().toLowerCase());
-    if (status != null && status.trim().toLowerCase() != 'status')
-      filteredQuery =
-          filteredQuery.where((element) => element.status == status.trim().toLowerCase());
+    if (status != null && status.trim().toLowerCase() != 'status') {
+      switch (status) {
+        case 'Checked In':
+          {
+            status = 'checkedIn';
+            break;
+          }
+        case 'Reserved':
+          {
+            status = 'reserved';
+            break;
+          }
+        case 'Checked Out':
+          {
+            status = 'checkedOut';
+            break;
+          }
+        case 'Cancelled':
+          {
+            status = 'cancelled';
+            break;
+          }
+      }
+      filteredQuery = filteredQuery.where((element) {
+        return element.status.toLowerCase() == status?.trim().toLowerCase();
+      });
+    }
     if (guestName != null)
       filteredQuery = filteredQuery.where((element) => element.guestName == guestName);
     return filteredQuery;
@@ -81,19 +107,19 @@ class BookingFireBaseApi {
     a.forEach((element) {
       if (startDate != null && endDate != null) {
         ReservationModel booking = ReservationModel.fromMap(element);
-        if (booking.checkIn.year >= startDate.year &&
-            booking.checkIn.year <= endDate.year &&
+        if (booking.checkIn.year == startDate.year &&
+            booking.checkIn.year == endDate.year &&
             booking.checkIn.month >= startDate.month &&
             booking.checkIn.month <= endDate.month &&
-            booking.checkIn.day >= startDate.day &&
-            booking.checkIn.day <= endDate.day &&
-            booking.status == status) allDocs.add(booking);
+            booking.status.toLowerCase() == status.toLowerCase()) {
+          allDocs.add(booking);
+        }
       }
     });
     return allDocs;
   }
-  Future<List<ReservationModel>> reservationsCheckIn(
-      DateTime? checkIn) async {
+
+  Future<List<ReservationModel>> reservationsCheckIn(DateTime? checkIn) async {
     List<ReservationModel>? allDocs = [];
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection("reservations")
@@ -105,15 +131,15 @@ class BookingFireBaseApi {
         ReservationModel booking = ReservationModel.fromMap(element);
         if (booking.checkIn.year == checkIn.year &&
             booking.checkIn.month == checkIn.month &&
-            booking.checkIn.day == checkIn.day){
-          allDocs.add(booking);}
+            booking.checkIn.day == checkIn.day) {
+          allDocs.add(booking);
+        }
       }
     });
     return allDocs;
   }
 
-  Future<List<ReservationModel>> reservationsCheckout(
-      DateTime? checkOut) async {
+  Future<List<ReservationModel>> reservationsCheckout(DateTime? checkOut) async {
     List<ReservationModel>? allDocs = [];
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection("reservations")
@@ -125,8 +151,9 @@ class BookingFireBaseApi {
         ReservationModel booking = ReservationModel.fromMap(element);
         if (booking.checkout.year == checkOut.year &&
             booking.checkout.month == checkOut.month &&
-            booking.checkout.day == checkOut.day){
-          allDocs.add(booking);}
+            booking.checkout.day == checkOut.day) {
+          allDocs.add(booking);
+        }
       }
     });
     return allDocs;
@@ -153,6 +180,7 @@ class BookingFireBaseApi {
       int docNumber = 0;
       final post = await FirebaseFirestore.instance
           .collection('reservations')
+          .where('guestName', isEqualTo: booking.guestName.toLowerCase())
           .get()
           .then((QuerySnapshot snapshot) {
         int i = 0;
@@ -181,10 +209,54 @@ class BookingFireBaseApi {
         'note': booking.note,
         'bookingDate': booking.bookingDate,
         'commission': booking.commission,
-        'fullyPaid':booking.fullyPaid,
+        'fullyPaid': booking.fullyPaid,
         'status': booking.status,
         'physicalCheckIn': booking.physicalCheckIn,
         'physicalCheckOut': booking.physicalCheckOut
+      });
+      batch.commit();
+    } catch (e) {
+      print(e);
+    }
+  }
+  Future<void> changeReservationDetails(ReservationModel currentReservation,ReservationModel updatedReservation) async {
+    try {
+      int docNumber = 0;
+      final post = await FirebaseFirestore.instance
+          .collection('reservations')
+          .where('guestName', isEqualTo: currentReservation.guestName.toLowerCase())
+          .get()
+          .then((QuerySnapshot snapshot) {
+        int i = 0;
+        snapshot.docs.forEach((element) {
+          Map<String, dynamic> a = element.data() as Map<String, dynamic>;
+          ReservationModel s = ReservationModel.fromMap(a);
+          if (s.checkIn.day == currentReservation.checkIn.day &&
+              s.checkIn.month == currentReservation.checkIn.month &&
+              s.checkIn.year == currentReservation.checkIn.year) docNumber = i;
+          i++;
+        });
+        return snapshot.docs[docNumber].reference;
+      });
+      var batch = FirebaseFirestore.instance.batch();
+      batch.update(post, {
+        'totalPrice': updatedReservation.totalPrice,
+        'guestName': updatedReservation.guestName,
+        'checkIn': updatedReservation.checkIn,
+        'checkout': updatedReservation.checkout,
+        'nights': updatedReservation.nights,
+        'room': updatedReservation.room,
+        'bookedFrom': updatedReservation.bookedFrom,
+        'guestsCount': updatedReservation.guestsCount,
+        'roomPrice': updatedReservation.roomPrice,
+        'reservedBed': updatedReservation.reservedBeds,
+        'note': updatedReservation.note,
+        'bookingDate': updatedReservation.bookingDate,
+        'commission': updatedReservation.commission,
+        'fullyPaid': updatedReservation.fullyPaid,
+        'status': updatedReservation.status,
+        'physicalCheckIn': updatedReservation.physicalCheckIn,
+        'physicalCheckOut': updatedReservation.physicalCheckOut
       });
       batch.commit();
     } catch (e) {

@@ -38,6 +38,7 @@ class _CheckInState extends State<CheckIn> {
   ReservationModel? currentReservation;
   List<String> roomAvailableBeds = [];
   List<bool> roomAvailableValues = [];
+  ScrollController scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +107,7 @@ class _CheckInState extends State<CheckIn> {
                         return const Iterable<String>.empty();
                       } else {
                         List<String> matches = <String>[];
+                        // print('******** ${widget.suggestions.length}');
                         for (int i = 0; i < widget.suggestions.length; i++)
                           matches.add(widget.suggestions[i].name);
                         matches.retainWhere((s) {
@@ -167,8 +169,8 @@ class _CheckInState extends State<CheckIn> {
                   ),
                 ),
                 Container(
-                  height: 100,
-                  margin: EdgeInsets.only(top: 10, bottom: 10),
+                  height: 150,
+                  padding: EdgeInsets.all(10),
                   child: Column(
                     children: [
                       Center(
@@ -193,81 +195,98 @@ class _CheckInState extends State<CheckIn> {
                           ),
                         ),
                       ),
+                      SizedBox(
+                        height: 5,
+                      ),
                       guestReservations.length == 0
                           ? Center(
                               child: Text('No data'),
                             )
                           : Expanded(
-                              child: ListView.builder(
-                                padding: EdgeInsets.zero,
-                                itemCount: guestReservations.length,
-                                itemBuilder: ((context, index) => GestureDetector(
-                                      onTap: () async {
-                                        roomAvailableBeds.clear();
-                                        availableBeds.clear();
-                                        roomAvailableValues.clear();
-                                        availableBeds = await Provider.of<AvailableBeds>(context,
-                                                listen: false)
-                                            .getRoomAvailableBeds(guestReservations[index]!.room);
-                                        setState(() {
-                                          currentReservation = guestReservations[index];
-                                          if (currentReservation!.room.trim().toLowerCase() ==
-                                                  'alfonso' ||
-                                              currentReservation!.room.trim().toLowerCase() ==
-                                                  'mallika')
-                                            numberOfBeds = currentReservation!.guestsCount;
-                                          for (int i = 0; i < availableBeds.length; i++) {
-                                            roomAvailableBeds.add(availableBeds[i]!.bedNumber);
-                                            roomAvailableValues.add(false);
-                                            roomName = guestReservations[index]!.room;
-                                            checkInRange = DateFormat('EEEE, d MMM, yyyy')
+                              child: Scrollbar(
+                                thumbVisibility: true,
+                                controller: scrollController,
+                                thickness: 10,
+                                scrollbarOrientation: ScrollbarOrientation.right,
+                                trackVisibility: true,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(15)),
+                                      border: Border.all(width: 2)),
+                                  padding: EdgeInsets.only(left: 5, right: 15),
+                                  child: ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    itemCount: guestReservations.length,
+                                    itemBuilder: ((context, index) => GestureDetector(
+                                          onTap: () async {
+                                            roomAvailableBeds.clear();
+                                            availableBeds.clear();
+                                            roomAvailableValues.clear();
+                                            availableBeds = await Provider.of<AvailableBeds>(
+                                                    context,
+                                                    listen: false)
+                                                .getRoomAvailableBeds(
+                                                    guestReservations[index]!.room);
+                                            setState(() {
+                                              currentReservation = guestReservations[index];
+                                              if (currentReservation!.room.trim().toLowerCase() ==
+                                                      'alfonso' ||
+                                                  currentReservation!.room.trim().toLowerCase() ==
+                                                      'mallika')
+                                                numberOfBeds = currentReservation!.guestsCount;
+                                              for (int i = 0; i < availableBeds.length; i++) {
+                                                roomAvailableBeds.add(availableBeds[i]!.bedNumber);
+                                                roomAvailableValues.add(false);
+                                              }
+                                              roomName = guestReservations[index]!.room;
+                                              checkInRange = DateFormat('EEEE, d MMM, yyyy')
+                                                      .format(guestReservations[index]!.checkIn) +
+                                                  '-' +
+                                                  DateFormat('EEEE, d MMM, yyyy')
+                                                      .format(guestReservations[index]!.checkout);
+                                              totalPrice = guestReservations[index]!.totalPrice;
+                                              nights = guestReservations[index]!.nights;
+                                              numberOfGuests =
+                                                  guestReservations[index]!.guestsCount;
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.only(left: 15, top: 8, bottom: 8),
+                                            margin: EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(10.0),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                      blurRadius: 3.0,
+                                                      color: Colors.black,
+                                                      offset: Offset(2, 2),
+                                                      blurStyle: BlurStyle.outer),
+                                                  BoxShadow(
+                                                      blurRadius: 3.0,
+                                                      color: Colors.white,
+                                                      offset: Offset(2, 2),
+                                                      blurStyle: BlurStyle.inner)
+                                                ]),
+                                            child: Text(DateFormat('EEEE, d MMM, yyyy')
                                                     .format(guestReservations[index]!.checkIn) +
                                                 '-' +
                                                 DateFormat('EEEE, d MMM, yyyy')
-                                                    .format(guestReservations[index]!.checkout);
-                                            totalPrice = guestReservations[index]!.totalPrice;
-                                            nights = guestReservations[index]!.nights;
-                                            numberOfGuests = guestReservations[index]!.guestsCount;
-                                          }
-                                        });
-                                      },
-                                      child: Container(
-                                          padding: EdgeInsets.only(left: 15, top: 8, bottom: 8),
-                                          margin: EdgeInsets.all(5),
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(10.0),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                    blurRadius: 3.0,
-                                                    color: Colors.black,
-                                                    offset: Offset(2, 2),
-                                                    blurStyle: BlurStyle.outer),
-                                                BoxShadow(
-                                                    blurRadius: 3.0,
-                                                    color: Colors.white,
-                                                    offset: Offset(2, 2),
-                                                    blurStyle: BlurStyle.inner)
-                                              ]),
-                                          child: Text(DateFormat('EEEE, d MMM, yyyy')
-                                                  .format(guestReservations[index]!.checkIn) +
-                                              '-' +
-                                              DateFormat('EEEE, d MMM, yyyy')
-                                                  .format(guestReservations[index]!.checkout))),
-                                    )),
+                                                    .format(guestReservations[index]!.checkout)),
+                                          ),
+                                        )),
+                                  ),
+                                ),
                               ),
                             ),
                     ],
                   ),
                 ),
                 Container(
-                  height: 200,
+                  height: 210,
                   child: Column(
                     children: [
                       Center(
                         child: Container(
-                          margin: EdgeInsets.only(
-                            top: 5,
-                          ),
                           child: Text(
                             'Guest Details',
                             style: TextStyle(
@@ -493,7 +512,18 @@ class _CheckInState extends State<CheckIn> {
                                     side: BorderSide(color: Colors.orange))),
                           ),
                           onPressed: () async {
-                            if (guestNameTEC.text.isNotEmpty) {
+                            if (availableBeds.length == 0) {
+                              showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                        content: Text('No reservation found'),
+                                        actions: [
+                                          ElevatedButton(
+                                              onPressed: () => Navigator.pop(context),
+                                              child: Text('Back'))
+                                        ],
+                                      ));
+                            } else if (guestNameTEC.text.isNotEmpty) {
                               FirebaseStorage storage = FirebaseStorage.instance;
                               Reference ref =
                                   storage.ref().child('passports').child('${guest!.name}.jpg');
@@ -513,7 +543,7 @@ class _CheckInState extends State<CheckIn> {
                               }
                               Provider.of<GuestManager>(context, listen: false).updateGuest(guest!);
                               currentReservation!.status = 'checkedIn';
-                              currentReservation!.physicalCheckIn = DateTime.now();
+                              currentReservation!.physicalCheckIn = currentReservation!.checkIn;
                               currentReservation!.reservedBeds = guestReservedBeds;
                               await Provider.of<ReservationManager>(context, listen: false)
                                   .updateReservation(currentReservation);

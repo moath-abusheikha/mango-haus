@@ -34,6 +34,9 @@ class GuestManager extends ChangeNotifier {
   void updateGuest(Guest guest) async {
     await fireBaseApi.updateGuest(guest);
   }
+  Future<void> changeGuestInfo(Guest guest, Guest updatedGuest) async {
+    await fireBaseApi.changeGuestInfo(guest,updatedGuest);
+  }
 
   Future<bool> userExist(String guestName) async {
     return await fireBaseApi.userExist(guestName);

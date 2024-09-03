@@ -103,7 +103,8 @@ class _HomePageState extends State<HomePage> {
                         blurRadius: 7,
                       ),
                     ], color: Colors.white),
-                    child: ListView.builder(
+                    child: checkIns.length > 0
+                        ? ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: checkInItemCount,
                       itemBuilder: (context, index) => Container(
@@ -125,53 +126,62 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             checkIns[index].status != 'checkedIn'
                                 ? Container(
-                                    padding: EdgeInsets.all(5),
-                                    child: Text(
-                                      'Not Checked In',
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  )
+                              padding: EdgeInsets.all(5),
+                              child: Text(
+                                'Not Checked In',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            )
                                 : Container(
-                                    padding: EdgeInsets.all(5),
-                                    child: Text(
-                                      'Checked In',
-                                      style: TextStyle(color: Colors.green),
-                                    ),
-                                  ),
+                              padding: EdgeInsets.all(5),
+                              child: Text(
+                                'Checked In',
+                                style: TextStyle(color: Colors.green),
+                              ),
+                            ),
                             Text(
                               'Name : ${checkIns[index].guestName}',
                               textAlign: TextAlign.left,
-                              style: TextStyle(color: Colors.black),
+                              style:
+                              TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               'Charge : ${checkIns[index].totalPrice}',
                               textAlign: TextAlign.left,
-                              style: TextStyle(color: Colors.black),
+                              style:
+                              TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               'Room : ${checkIns[index].room}',
                               textAlign: TextAlign.left,
-                              style: TextStyle(color: Colors.black),
+                              style:
+                              TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               'No. of Guests : ${checkIns[index].guestsCount}',
                               textAlign: TextAlign.left,
-                              style: TextStyle(color: Colors.black),
+                              style:
+                              TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               'Check In : ${DateFormat('EEEE, d MMM, yyyy').format(checkIns[index].checkIn)}',
                               textAlign: TextAlign.left,
-                              style: TextStyle(color: Colors.black),
+                              style:
+                              TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
                       ),
+                    )
+                        : Center(
+                      child: Text('No one is checking in today',
+                          style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   );
                 },
               ),
               Container(
-                margin: EdgeInsets.only(top: 20),
+                margin: EdgeInsets.only(top: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -190,12 +200,12 @@ class _HomePageState extends State<HomePage> {
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => CheckIn(
-                                      suggestions: suggestions,
-                                    )));
+                                  suggestions: suggestions,
+                                )));
                           },
                           child: Container(
-                            height: 100,
-                            width: 100,
+                            height: 110,
+                            width: 110,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15.0),
                               color: Colors.white,
@@ -203,15 +213,19 @@ class _HomePageState extends State<HomePage> {
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                SizedBox(height: 20),
-                                Icon(
-                                  Icons.add,
-                                  color: Colors.green,
-                                  size: 35,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: Image.asset(
+                                    'images/check-in.png',
+                                    fit: BoxFit.fill,
+                                    width: 50,
+                                    height: 50,
+                                    color: Colors.green,
+                                  ),
                                 ),
-                                SizedBox(height: 20),
-                                Text('Check in')
+                                SizedBox(height: 5),
+                                Text('Check in', style: TextStyle(fontWeight: FontWeight.bold))
                               ],
                             ),
                           ),
@@ -220,7 +234,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(width: 5),
                     FutureBuilder(
-                      future: fireBaseApi.getAllGuests(),
+                      future: Provider.of<GuestManager>(context,listen: false).getAllGuests(),
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
                           suggestions.clear();
@@ -236,8 +250,8 @@ class _HomePageState extends State<HomePage> {
                                 builder: (context) => CheckOut(suggestions: suggestions)));
                           },
                           child: Container(
-                            height: 100,
-                            width: 100,
+                            height: 110,
+                            width: 110,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15.0),
                               color: Colors.white,
@@ -245,15 +259,19 @@ class _HomePageState extends State<HomePage> {
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                SizedBox(height: 20),
-                                Icon(
-                                  Icons.remove,
-                                  color: Colors.green,
-                                  size: 35,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: Image.asset(
+                                    'images/check-out.png',
+                                    fit: BoxFit.cover,
+                                    width: 45,
+                                    height: 45,
+                                    color: Colors.green,
+                                  ),
                                 ),
-                                SizedBox(height: 20),
-                                Text('Check Out')
+                                SizedBox(height: 10),
+                                Text('Check Out', style: TextStyle(fontWeight: FontWeight.bold))
                               ],
                             ),
                           ),
@@ -285,8 +303,8 @@ class _HomePageState extends State<HomePage> {
                                 builder: (context) => GuestPayment(suggestions: suggestions)));
                           },
                           child: Container(
-                            height: 100,
-                            width: 100,
+                            height: 110,
+                            width: 110,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15.0),
                               color: Colors.white,
@@ -294,18 +312,19 @@ class _HomePageState extends State<HomePage> {
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                SizedBox(height: 20),
-                                Icon(
-                                  Icons.payments,
-                                  color: Colors.green,
-                                  size: 35,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: Image.asset(
+                                    'images/payment-method.png',
+                                    fit: BoxFit.cover,
+                                    width: 40,
+                                    height: 40,
+                                    color: Colors.green,
+                                  ),
                                 ),
-                                SizedBox(height: 20),
-                                Text(
-                                  'Guest Payment',
-                                  style: TextStyle(fontSize: 12),
-                                )
+                                SizedBox(height: 10),
+                                Text('Guest Payment', style: TextStyle(fontWeight: FontWeight.bold))
                               ],
                             ),
                           ),
@@ -319,8 +338,8 @@ class _HomePageState extends State<HomePage> {
                           .push(MaterialPageRoute(builder: (context) => ExpensesPage()));
                     },
                     child: Container(
-                      height: 100,
-                      width: 100,
+                      height: 110,
+                      width: 110,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15.0),
                         color: Colors.white,
@@ -328,18 +347,19 @@ class _HomePageState extends State<HomePage> {
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          SizedBox(height: 20),
-                          Icon(
-                            Icons.shopping_cart_checkout_outlined,
-                            color: Colors.green,
-                            size: 35,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.asset(
+                              'images/expenses.png',
+                              fit: BoxFit.cover,
+                              width: 40,
+                              height: 40,
+                              color: Colors.green,
+                            ),
                           ),
-                          SizedBox(height: 20),
-                          Text(
-                            'Expenses',
-                            style: TextStyle(fontSize: 12),
-                          )
+                          SizedBox(height: 10),
+                          Text('Expenses', style: TextStyle(fontWeight: FontWeight.bold))
                         ],
                       ),
                     ),
@@ -362,8 +382,8 @@ class _HomePageState extends State<HomePage> {
                                 builder: (context) => ServicesScreen(suggestions: suggestions)));
                           },
                           child: Container(
-                            height: 100,
-                            width: 100,
+                            height: 110,
+                            width: 110,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15.0),
                               border: Border.all(color: Colors.orangeAccent, width: 1),
@@ -375,18 +395,20 @@ class _HomePageState extends State<HomePage> {
                               ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  SizedBox(height: 20),
-                                  Icon(
-                                    Icons.room_service_rounded,
-                                    color: Colors.green,
-                                    size: 35,
+                                children: [
+
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    child: Image.asset(
+                                      'images/services.png',
+                                      fit: BoxFit.cover,
+                                      width: 40,
+                                      height: 40,
+                                      color: Colors.green,
+                                    ),
                                   ),
-                                  SizedBox(height: 20),
-                                  Text(
-                                    'Services',
-                                    style: TextStyle(fontSize: 12),
-                                  )
+                                  SizedBox(height: 10),
+                                  Text('Services', style: TextStyle(fontWeight: FontWeight.bold))
                                 ],
                               ),
                             ),
@@ -416,8 +438,8 @@ class _HomePageState extends State<HomePage> {
                               builder: (context) => Reservation(guests: suggestions)));
                         },
                         child: Container(
-                          height: 100,
-                          width: 100,
+                          height: 110,
+                          width: 110,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(15.0),
                             color: Colors.white,
@@ -425,18 +447,19 @@ class _HomePageState extends State<HomePage> {
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              SizedBox(height: 20),
-                              Icon(
-                                Icons.my_library_books_outlined,
-                                color: Colors.green,
-                                size: 35,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Image.asset(
+                                  'images/online-reservation.png',
+                                  fit: BoxFit.cover,
+                                  width: 50,
+                                  height: 40,
+                                  color: Colors.green,
+                                ),
                               ),
-                              SizedBox(height: 20),
-                              Text(
-                                'New Reservation',
-                                style: TextStyle(fontSize: 12),
-                              )
+                              SizedBox(height: 10),
+                              Text('New Reservation', style: TextStyle(fontWeight: FontWeight.bold))
                             ],
                           ),
                         ),
@@ -453,8 +476,8 @@ class _HomePageState extends State<HomePage> {
                           .push(MaterialPageRoute(builder: (context) => const ReportsScreen()));
                     },
                     child: Container(
-                      height: 100,
-                      width: 100,
+                      height: 110,
+                      width: 110,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15.0),
                         color: Colors.white,
@@ -462,18 +485,53 @@ class _HomePageState extends State<HomePage> {
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          SizedBox(height: 20),
-                          Icon(
-                            Icons.report_gmailerrorred,
-                            color: Colors.green,
-                            size: 35,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.asset(
+                              'images/reports.png',
+                              fit: BoxFit.cover,
+                              width: 40,
+                              height: 40,color: Colors.green,
+                            ),
                           ),
-                          SizedBox(height: 20),
-                          Text(
-                            'Reports',
-                            style: TextStyle(fontSize: 12),
-                          )
+                          SizedBox(height: 10),
+                          Text('Reports', style: TextStyle(fontWeight: FontWeight.bold))
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  InkWell(
+                    highlightColor: Colors.grey.shade100,
+                    onTap: () {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) => const EditInfos()));
+                    },
+                    child: Container(
+                      height: 110,
+                      width: 110,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15.0),
+                        color: Colors.white,
+                        border: Border.all(color: Colors.orangeAccent, width: 1),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.asset(
+                              'images/edit.png',
+                              fit: BoxFit.cover,
+                              width: 45,
+                              height: 45,color: Colors.green,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text('Edit Informations', style: TextStyle(fontWeight: FontWeight.bold))
                         ],
                       ),
                     ),
@@ -503,7 +561,7 @@ class _HomePageState extends State<HomePage> {
               ),
               Consumer<ReservationManager>(builder: (context, manager, child) {
                 manager.filteredReservationsWithCheckOut(DateTime.now()).then(
-                  (value) {
+                      (value) {
                     checkOuts = value.toList();
                     checkOutItemCount = value.length;
                   },
@@ -525,7 +583,8 @@ class _HomePageState extends State<HomePage> {
                       blurRadius: 7,
                     ),
                   ], color: Colors.white),
-                  child: ListView.builder(
+                  child: checkOuts.length > 0
+                      ? ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: checkOuts.length,
                     itemBuilder: (context, index) => Container(
@@ -536,7 +595,9 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(15.0),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black, blurStyle: BlurStyle.outer, offset: Offset(3, 0))
+                              color: Colors.black,
+                              blurStyle: BlurStyle.outer,
+                              offset: Offset(3, 0))
                         ],
                       ),
                       child: Column(
@@ -545,24 +606,24 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           checkOuts[index].status == 'reserved'
                               ? Container(
-                                  padding: EdgeInsets.all(5),
-                                  child: Text(
-                                    'Did Not Check in Yet',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                )
+                            padding: EdgeInsets.all(5),
+                            child: Text(
+                              'Did Not Check in Yet',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          )
                               : checkOuts[index].status == 'checkedIn'
-                                  ? Container(
-                                      padding: EdgeInsets.all(5),
-                                      child: Text(
-                                        'Did not check out yet',
-                                        style: TextStyle(color: Colors.green),
-                                      ),
-                                    )
-                                  : Text(
-                                      'Checked Out',
-                                      style: TextStyle(color: Colors.green),
-                                    ),
+                              ? Container(
+                            padding: EdgeInsets.all(5),
+                            child: Text(
+                              'Did not check out yet',
+                              style: TextStyle(color: Colors.green),
+                            ),
+                          )
+                              : Text(
+                            'Checked Out',
+                            style: TextStyle(color: Colors.green),
+                          ),
                           Text(
                             'Name : ${checkOuts[index].guestName}',
                             textAlign: TextAlign.left,
@@ -591,6 +652,10 @@ class _HomePageState extends State<HomePage> {
                         ],
                       ),
                     ),
+                  )
+                      : Center(
+                    child: Text('No one is checking out today',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 );
               })

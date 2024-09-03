@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mango_haus/managers/available_beds.dart';
 import 'package:mango_haus/managers/managers.dart';
 import 'package:mango_haus/managers/services_manager.dart';
-import 'screens/home_page.dart';
+import 'screens/screens.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      home: const HomePage(),
+      home: const SplashScreen(),
     );
   }
 }

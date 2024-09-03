@@ -11,28 +11,34 @@ class PaymentFireBaseApi {
 
   Future<Payment?> getCurrentPayment(String guestName, DateTime checkIn, DateTime checkout) async {
     Payment? payment;
-    print('$guestName - $checkIn - $checkout');
+    // print('$guestName - $checkIn - $checkout');
     final querySnapshot = await FirebaseFirestore.instance
         .collection('payments')
         .where('guestName', isEqualTo: guestName)
         .get();
-    Map<String, dynamic> result = querySnapshot.docs.first.data();
-    payment = Payment.fromMap(result);
-    // if (payment.remaining == 0) return null;
+    List<Map<String, dynamic>> result = querySnapshot.docs.map((doc) => doc.data()).toList();
+    result.forEach((element) {
+      var paymentTemp = Payment.fromMap(element);
+
+      if (paymentTemp.checkIn?.year == checkIn.year &&
+          paymentTemp.checkIn?.month == checkIn.month &&
+          paymentTemp.checkIn?.day == checkIn.day &&
+          paymentTemp.checkOut?.year == checkout.year &&
+          paymentTemp.checkOut?.month == checkout.month &&
+          paymentTemp.checkOut?.day == checkout.day) {
+        payment = paymentTemp;
+      }
+    });
     return payment;
   }
 
-  Future<Payment?> getPayment(String guestName) async {
-    Payment? payment;
+  Future<List<Payment>> getPayment(String guestName) async {
     final querySnapshot = await FirebaseFirestore.instance
         .collection('payments')
         .where('guestName', isEqualTo: guestName)
         .get();
-    final allData = querySnapshot.docs.map((doc) => doc.data()).toList();
-    String encode = jsonEncode(allData.last);
-    Map<String, dynamic> map = jsonDecode(encode);
-    payment = Payment.fromMap(map);
-    return payment;
+    final allData = querySnapshot.docs.map((doc) => Payment.fromMap(doc.data())).toList();
+    return allData;
   }
 
   Future<void> updatePayment(Payment payment) async {

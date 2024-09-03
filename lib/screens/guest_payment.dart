@@ -202,8 +202,10 @@ class _GuestPaymentState extends State<GuestPayment> {
                                       '-' +
                                       DateFormat('EEEE, d MMM, yyyy')
                                           .format(reservations[index]!.checkout);
+                                  //paymentDate = reservations[index]!.checkIn;
                                   return GestureDetector(
                                     onTap: () async {
+                                      totalPayments = 0;
                                       payment =
                                           await Provider.of<PaymentManager>(context, listen: false)
                                               .getCurrentGuestPayment(
@@ -215,6 +217,7 @@ class _GuestPaymentState extends State<GuestPayment> {
                                       }
                                       setState(() {
                                         paymentAmountsList = payment!.paymentAmounts;
+                                        paymentDatesList = payment!.paymentDates;
                                         currentReservation = reservations[index];
                                         roomName = currentReservation!.room;
                                         checkInDate = currentReservation!.checkIn;
@@ -228,31 +231,33 @@ class _GuestPaymentState extends State<GuestPayment> {
                                         nights = currentReservation!.nights;
                                         numberOfGuest = currentReservation!.guestsCount;
                                         remaining = payment!.remaining;
-                                        remainingBalance = totalPrice - totalPayments;
+                                        if (paymentAmount_TEC.text.isEmpty)
+                                          remainingBalance = totalPrice - totalPayments;
                                       });
                                     },
                                     child: Container(
-                                        padding: EdgeInsets.only(left: 15, top: 8, bottom: 8),
-                                        margin: EdgeInsets.all(5),
-                                        decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(10.0),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  blurRadius: 3.0,
-                                                  color: Colors.black,
-                                                  offset: Offset(2, 2),
-                                                  blurStyle: BlurStyle.outer),
-                                              BoxShadow(
-                                                  blurRadius: 3.0,
-                                                  color: Colors.white,
-                                                  offset: Offset(2, 2),
-                                                  blurStyle: BlurStyle.inner)
-                                            ]),
-                                        child: Text(DateFormat('EEEE, d MMM, yyyy')
-                                                .format(reservations[index]!.checkIn) +
-                                            '-' +
-                                            DateFormat('EEEE, d MMM, yyyy')
-                                                .format(reservations[index]!.checkout))),
+                                      padding: EdgeInsets.only(left: 15, top: 8, bottom: 8),
+                                      margin: EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(10.0),
+                                          boxShadow: [
+                                            BoxShadow(
+                                                blurRadius: 3.0,
+                                                color: Colors.black,
+                                                offset: Offset(2, 2),
+                                                blurStyle: BlurStyle.outer),
+                                            BoxShadow(
+                                                blurRadius: 3.0,
+                                                color: Colors.white,
+                                                offset: Offset(2, 2),
+                                                blurStyle: BlurStyle.inner)
+                                          ]),
+                                      child: Text(DateFormat('EEEE, d MMM, yyyy')
+                                              .format(reservations[index]!.checkIn) +
+                                          '-' +
+                                          DateFormat('EEEE, d MMM, yyyy')
+                                              .format(reservations[index]!.checkout)),
+                                    ),
                                   );
                                 }),
                               ),
@@ -261,7 +266,7 @@ class _GuestPaymentState extends State<GuestPayment> {
                   ),
                 ),
                 Container(
-                  height: 200,
+                  height: 212,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -310,7 +315,7 @@ class _GuestPaymentState extends State<GuestPayment> {
                           children: [
                             Text('Name: $guestName'),
                             SizedBox(height: 5),
-                            Text('Check in Range: $checkInRange'),
+                            Text('Staying Dates: $checkInRange'),
                             SizedBox(height: 5),
                             Text('Nights : $nights'),
                             SizedBox(height: 5),
@@ -429,7 +434,7 @@ class _GuestPaymentState extends State<GuestPayment> {
                       ]),
                       child: Center(
                           child: Text(
-                        'Remaining Balance: $remainingBalance',
+                        'Remaining Balance: ${remainingBalance.toStringAsPrecision(2)}',
                         style: TextStyle(fontSize: 16, color: Colors.green),
                       )),
                     ),
@@ -455,7 +460,7 @@ class _GuestPaymentState extends State<GuestPayment> {
                   child: Row(
                     children: [
                       Spacer(),
-                      Text(DateFormat('EEEE, d MMM, yyyy').format(checkoutDate).toString()),
+                      Text(DateFormat('EEEE, d MMM, yyyy').format(paymentDate).toString()),
                       Spacer(),
                       Container(
                           padding: EdgeInsets.all(5),
@@ -546,6 +551,7 @@ class _GuestPaymentState extends State<GuestPayment> {
                                       remaining = 0;
                                       numberOfGuest = 0;
                                       roomName = '';
+                                      paymentDatesList.clear();
                                     });
                                     Navigator.pop(context);
                                   },

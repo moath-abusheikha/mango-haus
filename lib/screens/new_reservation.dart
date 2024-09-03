@@ -30,7 +30,6 @@ class _ReservationState extends State<Reservation> {
   TextEditingController bookedDate_TEC = TextEditingController();
   TextEditingController note_TEC = TextEditingController();
   TextEditingController number_of_guests = TextEditingController();
-  TextEditingController room_name = TextEditingController();
   TextEditingController phoneNumberTEC = TextEditingController();
   TextEditingController countryTEC = TextEditingController();
   TextEditingController personalCommission = TextEditingController();
@@ -141,7 +140,7 @@ class _ReservationState extends State<Reservation> {
                     ? Container(
                         margin: EdgeInsets.all(15),
                         child: Text(
-                          'Phone Number : ${guest?.phoneNumber}   --   Country: ${guest?.Nationality}',
+                          'Phone Number : ${guest?.phoneNumber}   --   Country: ${guest?.nationality}',
                           style: TextStyle(fontSize: 14),
                         ))
                     : Row(
@@ -270,7 +269,6 @@ class _ReservationState extends State<Reservation> {
                   ),
                   Container(
                     width: 115,
-                    margin: EdgeInsets.all(5),
                     padding: EdgeInsets.only(right: 5),
                     decoration: BoxDecoration(
                         color: Colors.white,
@@ -367,7 +365,6 @@ class _ReservationState extends State<Reservation> {
                   Spacer(),
                   Container(
                     width: 115,
-                    margin: EdgeInsets.all(5),
                     padding: EdgeInsets.only(right: 5),
                     decoration: BoxDecoration(
                         color: Colors.white,
@@ -515,7 +512,8 @@ class _ReservationState extends State<Reservation> {
                 onTap: () async {
                   if (guest_name.text.isNotEmpty &&
                       number_of_guests.text.isNotEmpty &&
-                      totalPriceTEC.text.isNotEmpty) {
+                      totalPriceTEC.text.isNotEmpty &&
+                      roomsDDValue.isNotEmpty && roomsDDValue.toLowerCase().trim() != 'room') {
                     if (!guestExist) {
                       guest = Guest(
                         '',
@@ -526,8 +524,8 @@ class _ReservationState extends State<Reservation> {
                       await Provider.of<GuestManager>(context, listen: false).addGuest(guest!);
                     }
                     List<ReservationModel?> guestReserve =
-                        await Provider.of<ReservationManager>(context, listen: false)
-                            .getReservationByName(guest!.name, 'reserved');
+                    await Provider.of<ReservationManager>(context, listen: false)
+                        .getReservationByName(guest!.name, 'reserved');
                     ReservationModel booking = ReservationModel(note_TEC.text, null, null, [],
                         commission: commission_TEC.text.toString().isNotEmpty
                             ? double.parse(commission_TEC.text)
@@ -599,16 +597,38 @@ class _ReservationState extends State<Reservation> {
                         barrierColor: Colors.black.withOpacity(0.4),
                         context: context,
                         builder: (context) => Center(
-                          child: Container(
-                            color: Colors.black,
-                            child: Text(
+                          child: AlertDialog(
+                            content: Text(
                               '${guest_name.text} reservation exist',
                               style: TextStyle(color: Colors.white),
                               textAlign: TextAlign.center,
                             ),
+                            actions: [
+                              ElevatedButton(
+                                  onPressed: () => Navigator.pop(context), child: Text('Back'))
+                            ],
                           ),
                         ),
                       );
+                  } else {
+                    showDialog(
+                      barrierColor: Colors.black.withOpacity(0.4),
+                      context: context,
+                      builder: (context) => Center(
+                        child: AlertDialog(
+                          title: Text('missing data'),
+                          content: Text(
+                            'some data is missing',
+                            style: TextStyle(color: Colors.black),
+                            textAlign: TextAlign.center,
+                          ),
+                          actions: [
+                            ElevatedButton(
+                                onPressed: () => Navigator.pop(context), child: Text('Back'))
+                          ],
+                        ),
+                      ),
+                    );
                   }
                 },
                 child: Container(

@@ -30,7 +30,8 @@ class Payment {
     if (map['paymentDate'] != null && tempDates.isNotEmpty) {
       List<dynamic> tempPayments = map['paymentAmount'];
       for (int i = 0; i < tempPayments.length; i++) {
-        payments.add(tempPayments[i] as double);
+        double amount = tempPayments[i];
+        payments.add(amount);
         var t = tempDates[i];
         DateTime dt = t.toDate();
         dates.add(dt);

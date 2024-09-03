@@ -18,6 +18,8 @@ class ReservationManager extends ChangeNotifier {
 
   Future<List<ReservationModel?>> getReservationByName(String guestName, String status) async {
     List<ReservationModel?> booking = await fireBaseApi.getReservationByName(guestName, status);
+    // print('-- $booking');
+    //if (booking[0] != null )print('${booking[0]!.checkIn} - ${booking[0]!.checkout}');
     notifyListeners();
     return booking;
   }
@@ -50,15 +52,20 @@ class ReservationManager extends ChangeNotifier {
     return reservations;
   }
   Future<Iterable<ReservationModel>> getReservationsWithFilter(
-      DateTime startCheckInDate, DateTime endCheckInDate,String? roomName, String? status,String? guestName) async {
+      DateTime? startCheckInDate, DateTime? endCheckInDate,String? roomName, String? status,String? guestName) async {
     Iterable<ReservationModel> reservations =
     await fireBaseApi.filteredReservations(startCheckInDate,endCheckInDate,roomName,status,guestName);
     notifyListeners();
     return reservations;
   }
+  Future changeReservation(ReservationModel? currentReservation,ReservationModel? updatedReservation) async {
+    if (updatedReservation != null && currentReservation != null)
+      await fireBaseApi.changeReservationDetails(currentReservation, updatedReservation);
+  }
 
   Future updateReservation(ReservationModel? booking) async {
     if (booking != null)
     await fireBaseApi.updateReservation(booking);
+    notifyListeners();
   }
 }
