@@ -156,36 +156,26 @@ class _EditInfosState extends State<EditInfos> {
                       ),
                     );
                   }),
-              FutureBuilder(
-                  future: Provider.of<GuestManager>(context, listen: false).getAllGuests(),
-                  builder: (context, snapshot) {
-                    suggestions.clear();
-                    if (snapshot.data != null) {
-                      List<Guest> guests = snapshot.data!;
-                      for (int i = 0; i < guests.length; i++) {
-                        suggestions.add(guests[i]);
-                      }
-                    }
-                    return GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        width: 150,
-                        height: 60,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(15),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black38, spreadRadius: 3, offset: Offset(0, 0)),
-                            ]),
-                        child: Center(
-                            child: Text(
-                          'Edit Expenses',
-                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                        )),
-                      ),
-                    );
-                  }),
+              GestureDetector(
+                onTap: () {Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => EditExpense(),
+                ));},
+                child: Container(
+                  width: 150,
+                  height: 60,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black38, spreadRadius: 3, offset: Offset(0, 0)),
+                      ]),
+                  child: Center(
+                      child: Text(
+                    'Edit Expenses',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  )),
+                ),
+              ),
               FutureBuilder(
                 future: Provider.of<GuestManager>(context, listen: false).getAllGuests(),
                 builder: (context, snapshot) {

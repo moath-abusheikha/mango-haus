@@ -25,14 +25,14 @@ class ExpensesManager extends ChangeNotifier {
     notifyListeners();
     return allExpenses;
   }
-  Future<List<Expenses>> getExpenses() async {
-    List<Expenses> allExpenses = await fireBaseApi.getAllExpenses();
+  Future<List<Expenses>> getExpenses(DateTime? startDate, DateTime? endDate, List<String>? type, RangeValues rangeValues) async {
+    List<Expenses> allExpenses = await fireBaseApi.specificExpense(startDate, endDate, type, rangeValues);
     notifyListeners();
     return allExpenses;
   }
 
-  void updateExpense(Expenses expense) async {
-    await fireBaseApi.updateExpense(expense);
+  void updateExpense(Expenses expense, Expenses editedExpense) async {
+    await fireBaseApi.updateExpense(expense,editedExpense);
     notifyListeners();
   }
 }

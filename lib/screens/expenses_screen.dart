@@ -16,7 +16,8 @@ class _ExpensesPageState extends State<ExpensesPage> {
   TextEditingController description_TEC = TextEditingController();
   TextEditingController amount_TEC = TextEditingController();
   static const List<String> list = <String>['Daily', 'Rent', 'Electricity', 'Water', 'Internet'];
-  String _dDValue = 'Daily';
+  String
+  _dDValue = 'Daily';
 
   @override
   Widget build(BuildContext context) {

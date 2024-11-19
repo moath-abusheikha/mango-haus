@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mango_haus/models/models.dart';
 
@@ -7,7 +6,7 @@ class BookingFireBaseApi {
     List<ReservationModel?> bookings = [];
     FirebaseFirestore.instance
         .collection('reservations')
-        .where('guestName', isEqualTo: 'me')
+        .where('guestName', isEqualTo: guestName.toString().toLowerCase().trim())
         .where('status', isEqualTo: 'checkedIn')
         .orderBy('checkIn')
         .snapshots()
@@ -17,7 +16,6 @@ class BookingFireBaseApi {
         bookings.add(map);
       });
     });
-    // print('++ $bookings');
     return bookings;
   }
 
@@ -98,7 +96,6 @@ class BookingFireBaseApi {
   Future<List<ReservationModel>> reservedBetween2CheckInDatesWithStatus(
       DateTime? startDate, DateTime? endDate, String status) async {
     List<ReservationModel>? allDocs = [];
-    Iterable<ReservationModel>? filteredQuery = [];
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection("reservations")
         .orderBy('checkIn', descending: false)
