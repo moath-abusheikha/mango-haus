@@ -1,17 +1,15 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Services {
   DateTime dateTime;
-  String note, costumerName;
+  String note, customerName;
   double amount;
 
   Services(
       {
         required this.dateTime,
         required this.note,
-        required this.costumerName,
+        required this.customerName,
         required this.amount
       });
 
@@ -19,7 +17,7 @@ class Services {
     return Services(
         dateTime: (map['dateTime'] as Timestamp).toDate(),
         note: map['note'],
-        costumerName: map['costumerName'],
+        customerName: map['costumerName'],
         amount: map['amount']
     );
   }
@@ -28,7 +26,7 @@ class Services {
     Map<String, dynamic> map = {
       'dateTime': dateTime,
       'note': note,
-      'costumerName': costumerName,
+      'costumerName': customerName,
       'amount': amount,
     };
     return map;

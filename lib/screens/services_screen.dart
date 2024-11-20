@@ -293,7 +293,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
                             amount: double.parse(amount_TEC.text),
                             note: description_TEC.text,
                             dateTime: dateTime,
-                            costumerName: guestNameTEC.text
+                            customerName: guestNameTEC.text
                         );
                         Provider.of<ServicesManager>(context, listen: false).addService(service);
                         ScaffoldMessenger.of(context).showSnackBar(

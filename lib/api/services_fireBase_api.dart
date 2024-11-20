@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:mango_haus/models/models.dart';
 
 class ServicesFireBaseApi {
@@ -40,10 +41,12 @@ class ServicesFireBaseApi {
     return allDocs;
   }
 
-  Future<Iterable<Services>> filteredServices(
-      DateTime? startDate, DateTime? endDate, String? guestName) async {
+  Future<List<Services>> filteredServices(
+      DateTime? startDate, DateTime? endDate, String? guestName, RangeValues? amountRange) async {
+    if (startDate == null) startDate = DateTime(2020, 1, 1);
+    if (endDate == null) endDate = DateTime.now();
+    if (amountRange == null) amountRange = RangeValues(0, 300);
     List<Services>? allDocs = [];
-    Iterable<Services>? filteredQuery = [];
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection("services")
         .orderBy('dateTime', descending: false)
@@ -51,31 +54,45 @@ class ServicesFireBaseApi {
     Iterable a = querySnapshot.docs.map((doc) => doc.data()).toList();
     a.forEach((element) {
       Services service = Services.fromMap(element);
-      if (startDate != null && endDate != null) if (service.dateTime
-              .isAfter(startDate.subtract(Duration(days: 1))) &&
-          service.dateTime.isBefore(endDate.add(Duration(days: 1)))) {
-        allDocs.add(service);
+      if (service.dateTime.isAfter(startDate!.subtract(Duration(days: 1))) &&
+          service.dateTime.isBefore(endDate!.add(Duration(days: 1))) &&
+          service.amount < amountRange!.end &&
+          service.amount > amountRange.start) {
+        if (guestName == null) {
+          allDocs.add(service);
+        } else if (service.customerName.trim() == guestName.trim()) {
+          allDocs.add(service);
+        }
       }
     });
-    filteredQuery = allDocs;
-    if (guestName != null)
-      filteredQuery = allDocs.where((element) => element.costumerName == guestName);
-    return filteredQuery;
+    return allDocs;
   }
 
-  Future<void> updateService(Services service) async {
+  Future<void> updateService(Services service, Services updatedService) async {
     try {
       final post = await FirebaseFirestore.instance
           .collection('services')
-          .where('guestName', isEqualTo: '')
-          .limit(1)
           .get()
           .then((QuerySnapshot snapshot) {
-        return snapshot.docs[0].reference;
+        DocumentReference? elementReference;
+        snapshot.docs.forEach((element) {
+          Map<String, dynamic> map = element.data() as Map<String, dynamic>;
+          Services currService = Services.fromMap(map);
+          if (currService.amount == service.amount &&
+              currService.customerName == service.customerName &&
+              currService.dateTime == service.dateTime &&
+              currService.note == service.note) elementReference = element.reference;
+        });
+        //print(elementReference);
+        return elementReference;
       });
-
       var batch = FirebaseFirestore.instance.batch();
-      batch.update(post, {});
+      batch.update(post!, {
+        'amount': updatedService.amount,
+        'costumerName': updatedService.customerName,
+        'dateTime': updatedService.dateTime,
+        'note': updatedService.note
+      });
       batch.commit();
     } catch (e) {
       print(e);

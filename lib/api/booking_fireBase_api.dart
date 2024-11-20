@@ -104,10 +104,8 @@ class BookingFireBaseApi {
     a.forEach((element) {
       if (startDate != null && endDate != null) {
         ReservationModel booking = ReservationModel.fromMap(element);
-        if (booking.checkIn.year == startDate.year &&
-            booking.checkIn.year == endDate.year &&
-            booking.checkIn.month >= startDate.month &&
-            booking.checkIn.month <= endDate.month &&
+        if (booking.checkIn.isAfter(startDate) &&
+            booking.checkIn.isBefore(endDate) &&
             booking.status.toLowerCase() == status.toLowerCase()) {
           allDocs.add(booking);
         }
@@ -216,7 +214,9 @@ class BookingFireBaseApi {
       print(e);
     }
   }
-  Future<void> changeReservationDetails(ReservationModel currentReservation,ReservationModel updatedReservation) async {
+
+  Future<void> changeReservationDetails(
+      ReservationModel currentReservation, ReservationModel updatedReservation) async {
     try {
       int docNumber = 0;
       final post = await FirebaseFirestore.instance

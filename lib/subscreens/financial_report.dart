@@ -80,7 +80,7 @@ class _FinancialReportState extends State<FinancialReport> {
                       Provider.of<ReservationManager>(context, listen: false)
                           .filteredReservationsWith2DatesStatus(startDate, endDate, 'checkedOut'),
                       Provider.of<ServicesManager>(context, listen: false)
-                          .getFilteredServices(startDate, endDate, null),
+                          .getFilteredServices(startDate, endDate, null, null),
                       Provider.of<ExpensesManager>(context, listen: false)
                           .getFilteredExpenses(startDate, endDate),
                     ]),
@@ -92,22 +92,13 @@ class _FinancialReportState extends State<FinancialReport> {
                         return Center(child: Text('No data found your filter'));
                       else if (snapshot.connectionState == ConnectionState.done &&
                           snapshot.data != null) {
-                        for (int i = 0; i < snapshot.data!.elementAt(0).length; i++) {
-                          ReservationModel? reservation =
-                              snapshot.data?.elementAt(0).elementAt(i) as ReservationModel?;
-                          reservations.add(reservation);
-                        }
-                        for (int i = 0; i < snapshot.data!.elementAt(1).length; i++) {
-                          Services? service = snapshot.data?.elementAt(1).elementAt(i) as Services?;
-                          services.add(service);
-                        }
-                        for (int i = 0; i < snapshot.data!.elementAt(2).length; i++) {
-                          Expenses? expense = snapshot.data?.elementAt(2).elementAt(i) as Expenses?;
-                          expenses.add(expense);
-                        }
+                        List<ReservationModel> futureReservations =
+                            snapshot.data?[0] as List<ReservationModel>;
+                        List<Services> futureServices = snapshot.data?[1] as List<Services>;
+                        List<Expenses> futureExpenses = snapshot.data?[2] as List<Expenses>;
                         if (startDate != null && endDate != null) {
-                          totals =
-                              getTotals(reservations, services, expenses, startDate!, endDate!);
+                          totals = getTotals(futureReservations, futureServices, futureExpenses,
+                              startDate!, endDate!);
                         }
                       }
                       List<DataRow> dataRows = [];
@@ -210,6 +201,7 @@ class _FinancialReportState extends State<FinancialReport> {
 
   List<Map<String, Object>> getTotals(List<ReservationModel?> reservations,
       List<Services?> services, List<Expenses?> expenses, DateTime firstDate, DateTime lastDate) {
+    print(reservations);
     List<String> months = [
       'January',
       'February',

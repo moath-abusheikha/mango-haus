@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mango_haus/api/api.dart';
 import 'package:mango_haus/models/reservation.dart';
 
-
 class ReservationManager extends ChangeNotifier {
   final BookingFireBaseApi fireBaseApi = BookingFireBaseApi();
 
@@ -31,41 +30,41 @@ class ReservationManager extends ChangeNotifier {
   }
 
   Future<Iterable<ReservationModel>> filteredReservationsWith2DatesStatus(
-      DateTime? startDate, DateTime? endDate,String status) async {
+      DateTime? startDate, DateTime? endDate, String status) async {
     Iterable<ReservationModel> reservations =
-        await fireBaseApi.reservedBetween2CheckInDatesWithStatus(startDate,endDate,status);
+        await fireBaseApi.reservedBetween2CheckInDatesWithStatus(startDate, endDate, status);
     notifyListeners();
     return reservations;
   }
-  Future<Iterable<ReservationModel>> reservationsCheckIn(
-      DateTime? checkIn) async {
-    Iterable<ReservationModel> reservations =
-    await fireBaseApi.reservationsCheckIn(checkIn);
+
+  Future<Iterable<ReservationModel>> reservationsCheckIn(DateTime? checkIn) async {
+    List<ReservationModel> reservations = await fireBaseApi.reservationsCheckIn(checkIn);
     notifyListeners();
     return reservations;
   }
-  Future<Iterable<ReservationModel>> filteredReservationsWithCheckOut(
-      DateTime? checkOut) async {
-    Iterable<ReservationModel> reservations =
-    await fireBaseApi.reservationsCheckout(checkOut);
+
+  Future<Iterable<ReservationModel>> filteredReservationsWithCheckOut(DateTime? checkOut) async {
+    Iterable<ReservationModel> reservations = await fireBaseApi.reservationsCheckout(checkOut);
     notifyListeners();
     return reservations;
   }
-  Future<Iterable<ReservationModel>> getReservationsWithFilter(
-      DateTime? startCheckInDate, DateTime? endCheckInDate,String? roomName, String? status,String? guestName) async {
-    Iterable<ReservationModel> reservations =
-    await fireBaseApi.filteredReservations(startCheckInDate,endCheckInDate,roomName,status,guestName);
+
+  Future<Iterable<ReservationModel>> getReservationsWithFilter(DateTime? startCheckInDate,
+      DateTime? endCheckInDate, String? roomName, String? status, String? guestName) async {
+    Iterable<ReservationModel> reservations = await fireBaseApi.filteredReservations(
+        startCheckInDate, endCheckInDate, roomName, status, guestName);
     notifyListeners();
     return reservations;
   }
-  Future changeReservation(ReservationModel? currentReservation,ReservationModel? updatedReservation) async {
+
+  Future changeReservation(
+      ReservationModel? currentReservation, ReservationModel? updatedReservation) async {
     if (updatedReservation != null && currentReservation != null)
       await fireBaseApi.changeReservationDetails(currentReservation, updatedReservation);
   }
 
   Future updateReservation(ReservationModel? booking) async {
-    if (booking != null)
-    await fireBaseApi.updateReservation(booking);
+    if (booking != null) await fireBaseApi.updateReservation(booking);
     notifyListeners();
   }
 }

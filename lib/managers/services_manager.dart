@@ -16,25 +16,28 @@ class ServicesManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Iterable<Services?>> getFilteredServices(DateTime? startDate, DateTime? endDate, String? guestName) async {
-    Iterable<Services?> services = await fireBaseApi.filteredServices(startDate, endDate, guestName);
+  Future<List<Services>?> getFilteredServices(
+      DateTime? startDate, DateTime? endDate, String? guestName, RangeValues? amountRange) async {
+    List<Services>? services =
+        await fireBaseApi.filteredServices(startDate, endDate, guestName,amountRange);
     notifyListeners();
     return services;
   }
+
   Future<Services?> getService() async {
     Services? services = await fireBaseApi.getService();
     notifyListeners();
     return services;
   }
-  getAllServices() async{
+
+  getAllServices() async {
     List<Services> services = await fireBaseApi.getAllServices();
     notifyListeners();
     return services;
   }
 
-
-  void updateReservation(Services? service) async {
-    await fireBaseApi.updateService(service!);
+  void updateService(Services service, Services updatedService) async {
+    await fireBaseApi.updateService(service, updatedService);
     notifyListeners();
   }
 }

@@ -157,9 +157,11 @@ class _EditInfosState extends State<EditInfos> {
                     );
                   }),
               GestureDetector(
-                onTap: () {Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => EditExpense(),
-                ));},
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => EditExpense(),
+                  ));
+                },
                 child: Container(
                   width: 150,
                   height: 60,
@@ -187,7 +189,11 @@ class _EditInfosState extends State<EditInfos> {
                     }
                   }
                   return GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => EditService(suggestions: suggestions),
+                      ));
+                    },
                     child: Container(
                       width: 150,
                       height: 60,
