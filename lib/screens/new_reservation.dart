@@ -525,7 +525,7 @@ class _ReservationState extends State<Reservation> {
                     }
                     List<ReservationModel?> guestReserve =
                     await Provider.of<ReservationManager>(context, listen: false)
-                        .getReservationByName(guest!.name, 'reserved');
+                        .getReservationByName(guest!.name, ['reserved']);
                     ReservationModel booking = ReservationModel(note_TEC.text, null, null, [],
                         commission: commission_TEC.text.toString().isNotEmpty
                             ? double.parse(commission_TEC.text)

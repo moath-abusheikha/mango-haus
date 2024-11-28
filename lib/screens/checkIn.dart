@@ -117,13 +117,13 @@ class _CheckInState extends State<CheckIn> {
                       }
                     },
                     onSelected: (String selection) async {
-                      // print('You just selected $selection');
                       guest = await Provider.of<GuestManager>(context, listen: false)
                           .getGuest(selection.toLowerCase().trim());
                       if (guest != null) {
                         guestReservations =
                             await Provider.of<ReservationManager>(context, listen: false)
-                                .getReservationByName(guest!.name.trim().toLowerCase(), 'reserved');
+                                .getReservationByName(guest!.name.trim().toLowerCase(), ['reserved']);
+                       // print(guestReservations);
                         setState(() {
                           guestPassportImgPath = guest!.passportImagePath;
                         });

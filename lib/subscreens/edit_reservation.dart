@@ -756,9 +756,9 @@ class _EditReservationState extends State<EditReservation> {
                                   totalPrice: totalPrice_tec.text.isEmpty
                                       ? totalPrice!
                                       : double.parse(totalPrice_tec.text),
-                                  roomPrice: totalPrice != null && nights != null
+                                  roomPrice: totalPrice_tec.text.isEmpty
                                       ? totalPrice! / nights!
-                                      : 0,
+                                      : double.parse(totalPrice_tec.text) / nights!,
                                   guestName: currentReservation!.guestName,
                                   checkIn: DateFormat('EEEE, d MMM, yyyy').parse(newCheckIn),
                                   checkout: DateFormat('EEEE, d MMM, yyyy').parse(newCheckOut),
@@ -776,6 +776,11 @@ class _EditReservationState extends State<EditReservation> {
                                   fullyPaid: currentReservation!.fullyPaid);
                               Provider.of<ReservationManager>(context, listen: false)
                                   .changeReservation(currentReservation, updatedReservation);
+                              if (totalPrice_tec.text.isNotEmpty) {
+                                Provider.of<PaymentManager>(context, listen: false)
+                                    .updatePaymentTotal(
+                                        currentReservation, double.parse(totalPrice_tec.text));
+                              }
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(

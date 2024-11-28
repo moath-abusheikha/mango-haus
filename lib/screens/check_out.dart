@@ -110,7 +110,7 @@ class _CheckOutState extends State<CheckOut> {
                         .getGuest(selection.toLowerCase().trim());
                     if (guest != null) {
                       reservations = await Provider.of<ReservationManager>(context, listen: false)
-                          .getReservationByName(guest!.name.trim().toLowerCase(), 'checkedIn');
+                          .getReservationByName(guest!.name.trim().toLowerCase(), ['checkedIn']);
                     }
                   },
                   fieldViewBuilder: (BuildContext context,

@@ -30,6 +30,12 @@ class PaymentManager extends ChangeNotifier {
     fireBaseApi.updatePayment(payment!);
     notifyListeners();
   }
+  Future<void> updatePaymentTotal(ReservationModel? reservation, double updatedTotal) async {
+    print('sex');
+    fireBaseApi.updatePaymentTotal(reservation,updatedTotal);
+    notifyListeners();
+  }
+
 
   getAllPayments() async{
     List<Payment> payments = await fireBaseApi.getAllPayments();

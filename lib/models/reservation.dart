@@ -31,6 +31,7 @@ class ReservationModel {
       required this.fullyPaid});
 
   factory ReservationModel.fromMap(Map<String, dynamic> map) {
+    // print(map);
     Timestamp? cOutTimestamp;
     DateTime? physicalCheckOutFS, physicalCheckInFS;
     if (map['physicalCheckIn'] != null) {

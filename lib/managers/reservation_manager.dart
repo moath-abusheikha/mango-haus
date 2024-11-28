@@ -15,10 +15,8 @@ class ReservationManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<List<ReservationModel?>> getReservationByName(String guestName, String status) async {
+  Future<List<ReservationModel?>> getReservationByName(String guestName, List<String> status) async {
     List<ReservationModel?> booking = await fireBaseApi.getReservationByName(guestName, status);
-    // print('-- $booking');
-    //if (booking[0] != null )print('${booking[0]!.checkIn} - ${booking[0]!.checkout}');
     notifyListeners();
     return booking;
   }

@@ -108,7 +108,7 @@ class _EditPaymentsState extends State<EditPayments> {
                         .getGuest(selection.toLowerCase().trim());
                     if (guest != null) {
                       var tempRes = await Provider.of<ReservationManager>(context, listen: false)
-                          .getReservationByName(guest!.name.trim().toLowerCase(), 'checkedIn');
+                          .getReservationByName(guest!.name.trim().toLowerCase(), ['checkedIn','checkedOut']);
                       WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {
                             reservations = tempRes;
                           }));
@@ -190,7 +190,10 @@ class _EditPaymentsState extends State<EditPayments> {
                   children: [
                     reservations?.length == 0 || reservations == null
                         ? Center(
-                            child: Text('No data'),
+                            child: Text(
+                              'No Payments Available Or Guest Checked Out',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           )
                         : Expanded(
                             child: Scrollbar(
@@ -335,7 +338,7 @@ class _EditPaymentsState extends State<EditPayments> {
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState == ConnectionState.done) {
                                   if (!snapshot.hasData) {
-                                    return Text('No data found');
+                                    return Text('No payments found');
                                   }
                                   return ListView.builder(
                                     padding: EdgeInsets.all(5),

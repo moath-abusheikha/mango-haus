@@ -118,9 +118,9 @@ class _GuestPaymentState extends State<GuestPayment> {
                           .getGuest(selection.toLowerCase().trim());
                       if (guest != null) {
                         guestName = guest!.name;
-                        reservations = await Provider.of<ReservationManager>(context, listen: false)
-                            .getReservationByName(guest!.name.trim().toLowerCase(), 'checkedIn');
                       }
+                      reservations = await Provider.of<ReservationManager>(context, listen: false)
+                          .getReservationByName(guest!.name.trim().toLowerCase(), ['checkedIn']);
                     },
                     fieldViewBuilder: (BuildContext context,
                         TextEditingController textEditingController,

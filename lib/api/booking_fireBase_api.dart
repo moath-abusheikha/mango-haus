@@ -2,18 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mango_haus/models/models.dart';
 
 class BookingFireBaseApi {
-  Future<List<ReservationModel?>> getReservationByName(String guestName, String status) async {
+  Future<List<ReservationModel?>> getReservationByName(String guestName, List<String> status) async {
     List<ReservationModel?> bookings = [];
     FirebaseFirestore.instance
         .collection('reservations')
         .where('guestName', isEqualTo: guestName.toString().toLowerCase().trim())
-        .where('status', isEqualTo: 'checkedIn')
+        .where('status', whereIn: status)
         .orderBy('checkIn')
         .snapshots()
         .listen((event) {
       event.docs.forEach((element) {
-        ReservationModel map = ReservationModel.fromMap(element.data());
-        bookings.add(map);
+        ReservationModel reservation = ReservationModel.fromMap(element.data());
+        bookings.add(reservation);
       });
     });
     return bookings;

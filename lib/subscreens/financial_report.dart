@@ -20,7 +20,7 @@ class _FinancialReportState extends State<FinancialReport> {
   List<ReservationModel?> reservations = [];
   List<Services?> services = [];
   List<Expenses?> expenses = [];
-  List<Map<String, Object>> totals = [];
+  bool? showZeros = false;
 
   @override
   Widget build(BuildContext context) {
@@ -47,11 +47,11 @@ class _FinancialReportState extends State<FinancialReport> {
                   TextButton(
                     onPressed: () async {
                       DateTimeRange? dateTimeRange = await showDateRangePicker(
-                          initialDateRange:
-                              DateTimeRange(start: DateTime.now(), end: DateTime.now()),
-                          context: context,
-                          firstDate: DateTime(2023),
-                          lastDate: DateTime(2030));
+                        initialDateRange: DateTimeRange(start: DateTime.now(), end: DateTime.now()),
+                        context: context,
+                        firstDate: DateTime(2023),
+                        lastDate: DateTime(2030),
+                      );
                       if (dateTimeRange != null) {
                         setState(() {
                           selectedDate = dateTimeRange;
@@ -69,6 +69,21 @@ class _FinancialReportState extends State<FinancialReport> {
                   ),
                 ],
               ),
+            ),
+            Row(
+              children: [
+                Spacer(),
+                Center(child: Text('Remove Empty Fields'),),
+                Container(
+                    child: Checkbox(
+                      value: showZeros,
+                      onChanged: (bool? value) {
+                        setState(() {
+                          showZeros = value;
+                        });
+                      },
+                    ))
+              ],
             ),
             Expanded(
               child: Container(
@@ -88,6 +103,7 @@ class _FinancialReportState extends State<FinancialReport> {
                       reservations.clear();
                       services.clear();
                       expenses.clear();
+                      List<DataRow> dataRows = [];
                       if (!snapshot.hasData)
                         return Center(child: Text('No data found your filter'));
                       else if (snapshot.connectionState == ConnectionState.done &&
@@ -97,77 +113,12 @@ class _FinancialReportState extends State<FinancialReport> {
                         List<Services> futureServices = snapshot.data?[1] as List<Services>;
                         List<Expenses> futureExpenses = snapshot.data?[2] as List<Expenses>;
                         if (startDate != null && endDate != null) {
-                          totals = getTotals(futureReservations, futureServices, futureExpenses,
+                          dataRows = getTotals(futureReservations, futureServices, futureExpenses,
                               startDate!, endDate!);
+                          // for (int m = 0; m < dataRows.length; m++) print(dataRows[m].cells);
                         }
                       }
-                      List<DataRow> dataRows = [];
-                      if (totals.isNotEmpty)
-                        for (int i = 0; i < totals.length; i++) {
-                          int roomCount = int.parse(totals[i]['nights'].toString());
-                          double roomOccupancy = roomCount / 360;
-                          DataRow dataRow = DataRow(cells: [
-                            DataCell(
-                              Center(
-                                  child: Text(
-                                '${totals[i]['month']}',
-                                textAlign: TextAlign.center,
-                              )),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text(
-                                      '${double.parse(totals[i]['revenue'].toString()).toStringAsPrecision(6)}',
-                                      textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text(
-                                      '${double.parse(totals[i]['commission'].toString()).toStringAsPrecision(3)}',
-                                      textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child:
-                                      Text('${totals[i]['daily']}', textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text('${totals[i]['rent']}', textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child:
-                                      Text('${totals[i]['water']}', textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text('${totals[i]['electricity']}',
-                                      textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text('${totals[i]['internet']}',
-                                      textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text('${totals[i]['services']}',
-                                      textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child:
-                                      Text('${totals[i]['nights']}', textAlign: TextAlign.center)),
-                            ),
-                            DataCell(
-                              Center(
-                                  child: Text('${roomOccupancy.toStringAsPrecision(2)}',
-                                      textAlign: TextAlign.center)),
-                            ),
-                          ]);
-                          dataRows.add(dataRow);
-                        }
+                      // return Container();
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: DataTable(
@@ -199,9 +150,8 @@ class _FinancialReportState extends State<FinancialReport> {
     );
   }
 
-  List<Map<String, Object>> getTotals(List<ReservationModel?> reservations,
-      List<Services?> services, List<Expenses?> expenses, DateTime firstDate, DateTime lastDate) {
-    print(reservations);
+  List<DataRow> getTotals(List<ReservationModel?> reservations, List<Services?> services,
+      List<Expenses?> expenses, DateTime firstDate, DateTime lastDate) {
     List<String> months = [
       'January',
       'February',
@@ -216,65 +166,168 @@ class _FinancialReportState extends State<FinancialReport> {
       'November',
       'December'
     ];
-    List totalMonthlyRoomRevenue = List.generate(12, (index) => 0, growable: false),
-        totalMonthlyCommission = List.generate(12, (index) => 0, growable: false),
-        totalMonthlyDailyExpenses = List.generate(12, (index) => 0, growable: false),
-        totalMonthlyRent = List.generate(12, (index) => 0, growable: false),
-        totalMonthlyElectricity = List.generate(12, (index) => 0, growable: false),
-        totalMonthlyWater = List.generate(12, (index) => 0, growable: false),
-        totalMonthlyServices = List.generate(12, (index) => 0, growable: false),
-        totalMonthlyInternet = List.generate(12, (index) => 0, growable: false);
-    List<int> totalNights = List.generate(12, (index) => 0, growable: false);
-    Map<String, Object> monthsValues;
-    List<Map<String, Object>> totals = [];
-    for (int i = 0; i < reservations.length; i++) {
-      int index = reservations[i]!.checkIn.month - 1;
-      totalMonthlyRoomRevenue[index] += reservations[i]!.totalPrice;
-      totalMonthlyCommission[index] += reservations[i]!.commission;
-      totalNights[index] += reservations[i]!.nights;
-    }
-    for (int j = 0; j < services.length; j++) {
-      int index = reservations[j]!.checkIn.month - 1;
-      totalMonthlyServices[index] += services[j]!.amount;
-    }
-    for (int j = 0; j < expenses.length; j++) {
-      int index = reservations[j]!.checkIn.month - 1;
-      if (expenses[j]!.type.trim().toLowerCase() == 'daily')
-        totalMonthlyDailyExpenses[index] += expenses[j]!.amount;
-      if (expenses[j]!.type.trim().toLowerCase() == 'rent')
-        totalMonthlyRent[index] += expenses[j]!.amount;
-      if (expenses[j]!.type.trim().toLowerCase() == 'electricity')
-        totalMonthlyElectricity[index] += expenses[j]!.amount;
-      if (expenses[j]!.type.trim().toLowerCase() == 'water')
-        totalMonthlyWater[index] += expenses[j]!.amount;
-      if (expenses[j]!.type.trim().toLowerCase() == 'internet')
-        totalMonthlyInternet[index] += expenses[j]!.amount;
-    }
-    for (int i = 0; i < 12; i++) {
-      if (totalNights[i] == 0 &&
-          totalMonthlyRoomRevenue[i] == 0 &&
-          totalMonthlyCommission[i] == 0 &&
-          totalMonthlyServices[i] == 0 &&
-          totalMonthlyDailyExpenses[i] == 0 &&
-          totalMonthlyRent[i] == 0 &&
-          totalMonthlyWater[i] == 0 &&
-          totalMonthlyElectricity[i] == 0 &&
-          totalMonthlyInternet[i] == 0) continue;
+    int yearDiff = (lastDate.year - firstDate.year) + 1;
+    int numberOfMonths = (yearDiff * 12) - (firstDate.month - 1) - (12 - lastDate.month);
+    List<DataRow> rows = List.generate(
+      numberOfMonths,
+      (index) => DataRow(
+        cells: [
+          DataCell(Container()),
+          DataCell(Container()),
+          DataCell(Container()),
+          DataCell(Container()),
+          DataCell(Container()),
+          DataCell(Container()),
+          DataCell(Container()),
+          DataCell(Container()),
+          DataCell(Container()),
+          DataCell(Container()),
+          DataCell(Container()),
+        ],
+      ),
+    );
+    List<int> indices = [];
+    for (int i = 0; i < numberOfMonths; i++) {
+      int yearAddition = ((i + firstDate.month - 1) / 12).truncate();
+      // print('${months[(i + firstDate.month - 1)%12]}');
+      int monthIndex = (i + firstDate.month - 1) % 12;
+      String month = months[monthIndex];
+      int year = firstDate.year + yearAddition;
+      double monthlyRoomRevenue = 0,
+          monthlyCommission = 0,
+          monthlyDailyExpenses = 0,
+          monthlyRent = 0,
+          monthlyElectricity = 0,
+          monthlyWater = 0,
+          monthlyServices = 0,
+          monthlyInternet = 0,
+          monthlyNights = 0;
+      for (int j = 0; j < reservations.length; j++) {
+        if (reservations[j]?.checkIn.month == monthIndex + 1 &&
+            reservations[j]?.checkIn.year == year &&
+            reservations[j]?.status == 'checkedOut') {
+          monthlyRoomRevenue += reservations[j]!.totalPrice;
+          monthlyCommission += reservations[j]!.commission;
+          monthlyNights += reservations[j]!.nights;
+        }
+      }
+      for (int j = 0; j < expenses.length; j++) {
+        if (expenses[j]?.date.month == monthIndex && expenses[j]?.date.year == year) {
+          if (expenses[j]!.type.trim().toLowerCase() == 'daily')
+            monthlyDailyExpenses += expenses[j]!.amount;
+          if (expenses[j]!.type.trim().toLowerCase() == 'rent') monthlyRent += expenses[j]!.amount;
+          if (expenses[j]!.type.trim().toLowerCase() == 'electricity')
+            monthlyElectricity += expenses[j]!.amount;
+          if (expenses[j]!.type.trim().toLowerCase() == 'water')
+            monthlyWater += expenses[j]!.amount;
+          if (expenses[j]!.type.trim().toLowerCase() == 'internet')
+            monthlyInternet += expenses[j]!.amount;
+        }
+      }
 
-      monthsValues = {
-        'month': months[i],
-        'nights': totalNights[i],
-        'revenue': totalMonthlyRoomRevenue[i],
-        'commission': totalMonthlyCommission[i],
-        'services': totalMonthlyServices[i],
-        'daily': totalMonthlyDailyExpenses[i],
-        'rent': totalMonthlyRent[i],
-        'water': totalMonthlyWater[i],
-        'electricity': totalMonthlyElectricity[i],
-        'internet': totalMonthlyInternet[i]
-      };
-      totals.add(monthsValues);
+      if (monthlyRoomRevenue == 0 &&
+          monthlyCommission == 0 &&
+          monthlyDailyExpenses == 0 &&
+          monthlyRent == 0 &&
+          monthlyElectricity == 0 &&
+          monthlyWater == 0 &&
+          monthlyServices == 0 &&
+          monthlyInternet == 0 &&
+          monthlyNights == 0) indices.add(i);
+      DataRow dataRow = DataRow(cells: [
+        DataCell(
+          Center(
+            child: Text(
+              '$month - $year',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: Text('${monthlyRoomRevenue.toStringAsFixed(2)}', textAlign: TextAlign.center),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: Text(
+              '${monthlyCommission.toStringAsFixed(2)}',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: Text(
+              '${monthlyDailyExpenses.toStringAsFixed(2)}',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: Text(
+              '${monthlyRent.toStringAsFixed(2)}',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: Text(
+              '${monthlyWater.toStringAsFixed(2)}',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: Text(
+              '${monthlyElectricity.toStringAsFixed(2)}',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: Text(
+              '${monthlyInternet.toStringAsFixed(2)}',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: Text(
+              '${monthlyServices.toStringAsFixed(2)}',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: Text(
+              '${monthlyNights.toStringAsFixed(2)}',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        DataCell(
+          Center(
+            child: Text(
+              '${((monthlyNights / 360) * 100).toStringAsFixed(2)} %',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ]);
+      // print(rows);
+      rows[i] = dataRow;
     }
-    return totals;
+    List<DataRow> finalRows = [];
+    for (int q = 0; q < rows.length; q++) {
+      if (!indices.contains(q)) finalRows.add(rows[q]);
+    }
+    return showZeros == true ? finalRows : rows;
   }
 }

@@ -91,4 +91,58 @@ class PaymentFireBaseApi {
     // allDocs = querySnapshot.docs.map((doc) => doc.data()).cast<Payment>().toList();
     return allDocs;
   }
+
+  void updatePaymentTotal(ReservationModel? reservation, double updatedTotal) async {
+    print('guck');
+    if (reservation != null)
+      try {
+        int docNumber = 0;
+        double updatedRemaining = 0;
+        var paymentAmounts = [];
+        var paymentDates = [];
+        String? receivedBy;
+        final DocumentReference post = await FirebaseFirestore.instance
+            .collection('payments')
+            .where('guestName', isEqualTo: reservation.guestName)
+            .get()
+            .then((QuerySnapshot snapshot) {
+          int i = 0;
+          snapshot.docs.forEach((element) {
+            Map<String, dynamic> a = element.data() as Map<String, dynamic>;
+            Payment s = Payment.fromMap(a);
+            if (s.checkIn?.day == reservation.checkIn.day &&
+                s.checkIn?.month == reservation.checkIn.month &&
+                s.checkIn?.year == reservation.checkIn.year) {
+              paymentAmounts = s.paymentAmounts;
+              paymentDates = s.paymentDates;
+              receivedBy = s.receivedBy;
+              docNumber = i;
+              double total = 0;
+              for (int i = 0; i < s.paymentAmounts.length; i++) {
+                total += s.paymentAmounts[i];
+              }
+              updatedRemaining = updatedTotal - total + s.remaining;
+            }
+            ;
+            i++;
+          });
+          return snapshot.docs[docNumber].reference;
+        });
+        // print('___ $post ## $updatedRemaining');
+
+        var batch = FirebaseFirestore.instance.batch();
+        batch.update(post, {
+          'checkIn': reservation.checkIn,
+          'checkOut': reservation.checkout,
+          'guestName': reservation.guestName,
+          'paymentAmount': paymentAmounts,
+          'paymentDate': paymentDates,
+          'receivedBy': receivedBy,
+          'remaining': updatedRemaining,
+        });
+        batch.commit();
+      } catch (e) {
+        print(e);
+      }
+  }
 }
